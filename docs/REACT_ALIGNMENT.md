@@ -71,10 +71,14 @@ The Ignition UDTs precisely match the React TypeScript interfaces:
 #### System Config UDT → `SystemConfig` interface
 | React Field | Ignition Tag | Notes |
 |------------|--------------|-------|
-| `tankCount` | `TankCount` | User-configurable: 1-8 tanks |
+| `tankCount` | `TankCount` | **User-configurable: 1-8 tanks (dynamic configuration)** |
 | `siteName` | `SiteName` | "Youthful Wellspring" |
 | `location` | `Location` | Site location string |
 | `initialized` | `Initialized` | Initialization flag |
+
+**Tank Configuration Feature:**
+- **React:** ConfigScreen.tsx allows user to select 1-8 tanks via buttons, dynamically creates tank array during initialization
+- **Ignition:** config.json provides identical button interface (1-8), writes to `Config/TankCount` and automatically enables/disables tank instances
 
 #### System UDT → `PLCData` system fields
 | React Field | Ignition Tag | Notes |
@@ -170,8 +174,10 @@ elif backwash_active and timer_pv >= duration:
 ## 📐 View Structure Alignment
 
 ### HomeScreen.tsx → overview.json
-- **Status Cards**: Pump, Mode, Backwash, Active Tanks
-- **Tank Grid**: 2x2 grid using embedded `TankCard` component
+- **Status Cards**: Pump, Mode, Backwash, System Demand, **Active Tanks** (shows X/Y format)
+- **Tank Grid**: Displays all 8 tanks with visibility bindings based on `Enabled` flag
+- **Dynamic Display**: Tanks 5-8 automatically hidden when disabled
+- **Active Tanks Card**: Shows count of enabled tanks / total configured tanks (e.g., "4 / 4")
 - **Data Source**: Direct tag bindings to `[default]YW_Demo/...`
 
 ### PumpControlScreen.tsx → pump.json
@@ -189,6 +195,12 @@ elif backwash_active and timer_pv >= duration:
 - **History**: Last 1 hour (requires tag history enabled)
 
 ### ConfigScreen.tsx → config.json
+- **Site Name Input**: Text field bound to `Config/SiteName`
+- **Location Input**: Text field bound to `Config/Location`
+- **Tank Count Selector**: 8 buttons (1-8) matching React's button grid
+  - Each button sets `Config/TankCount` and enables/disables corresponding tank instances
+  - Selected button highlighted with primary style
+  - Shows "Selected: X tanks" label
 - **Mode Selector**: Dropdown bound to `Mode/AutoSelected` (true/false)
 - **Fault Bypass**: Dropdown bound to `Mode/BypassPFFault`
 - **Initialize Button**: Writes to `Config/Initialized`
@@ -222,6 +234,86 @@ The CSS file (`perspective/style/style.css`) includes:
 - **Gradient backgrounds** for cards and buttons
 - **Animation keyframes** for pulse and spin effects
 - **Custom scrollbar** styling
+
+---
+
+## 🎛️ Tank Configuration Feature - Complete Alignment
+
+### React Implementation (App.tsx lines 298-336)
+```typescript
+const handleSystemConfig = (config: SystemConfig) => {
+  // Initialize tanks based on config
+  const tanks: Tank[] = Array.from({ length: config.tankCount }, (_, i) => ({
+    id: i,
+    name: `Tank ${i + 1}`,
+    priority: i + 1,
+    enabled: true,
+    // ... other properties
+  }));
+  
+  setPlcData(prev => ({ ...prev, config, tanks }));
+  toast.success(`System configured with ${config.tankCount} tanks`);
+};
+```
+
+### Ignition Implementation
+
+**Configuration Phase (config.json):**
+- User clicks button 1-8 to set tank count
+- Button script writes `Config/TankCount` and enables tanks 1-N, disables tanks N+1 through 8
+- Selected button shows primary styling (matching React's highlighted state)
+
+**Simulation Phase (yw_sim.py lines 48-55):**
+```python
+# Read configured tank count (1-8)
+tank_count = system.tag.readBlocking([base_path + "/Config/TankCount"])[0].value
+tank_count = max(1, min(8, tank_count))  # Clamp to valid range
+
+# Generate tank names based on configuration
+tank_names = ["Tank_" + str(i) for i in range(1, tank_count + 1)]
+```
+
+**Display Phase (overview.json):**
+- All 8 tank card views defined in view JSON
+- Tanks 5-8 have visibility binding: `{[default]YW_Demo/Tanks/Tank_X/Enabled}`
+- Only enabled tanks visible in UI (matching React's `.map()` behavior)
+- Active Tanks card shows: `"X / Y"` format (enabled count / total configured)
+
+**Helper Functions:**
+- `get_tank_snapshot()` - Returns list of only configured tanks
+- `get_diagnostics_data()` - Includes only configured tanks
+- All functions dynamically read `Config/TankCount` at runtime
+
+### Alignment Verification ✅
+
+| Feature | React | Ignition | Status |
+|---------|-------|----------|--------|
+| Tank Count Range | 1-8 | 1-8 | ✅ Aligned |
+| Configuration UI | Button grid | Button grid | ✅ Aligned |
+| Dynamic Tank Creation | `Array.from()` | Tag enable/disable | ✅ Aligned |
+| Simulation Processing | `.map()`, `.filter()` | Dynamic list generation | ✅ Aligned |
+| Display Visibility | Conditional render | Visibility bindings | ✅ Aligned |
+| Active Count Display | "X / Y" format | "X / Y" format | ✅ Aligned |
+| Priority Arbitration | Works across all tanks | Works across all tanks | ✅ Aligned |
+
+### Design Decision: Pre-Created vs. Dynamic Tags
+
+**React Approach:**
+- Dynamically creates tank objects during initialization
+- Array length varies based on `tankCount`
+
+**Ignition Approach:**
+- All 8 tank UDT instances pre-created in tag structure
+- `Enabled` flag controls processing and visibility
+- Allows runtime reconfiguration without tag recreation
+
+**Why the difference?**
+1. Perspective views require tag paths to exist for bindings
+2. Cannot dynamically create/delete UDT instances at runtime
+3. Pre-created structure is more robust for SCADA applications
+4. `Enabled` flag provides additional control layer not present in React
+
+**Result:** Functionally equivalent - both systems process and display only the configured number of tanks.
 
 ---
 
