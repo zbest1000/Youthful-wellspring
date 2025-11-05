@@ -1,309 +1,305 @@
 """
 Youthful Wellspring Simulation Module
-Replicates the React SPA's PLC/SCADA logic for demo purposes.
+Replicates the React SPA's PLC/SCADA logic from App.tsx
 
 To activate: Create a gateway timer script that calls:
     project.script.yw_sim.run_tick("[default]YW_Demo")
-every 2 seconds.
+every 2 seconds (matching React's 2000ms interval).
 """
 
 import system
 from java.util import Date
 
 
-# === TANK SIMULATION ===
-
-def update_tank_levels(base_path, pump_running, backwash_in_progress):
-	"""
-	Update all tank levels based on pump state and outlet valve positions.
-	Inlet valves fill tanks; outlet valves drain tanks.
-	"""
-	tank_names = ["Tank_A", "Tank_B", "Tank_C", "Tank_D"]
-	
-	for tank_name in tank_names:
-		tank_path = base_path + "/Tanks/" + tank_name
-		
-		# Read current state
-		level = system.tag.readBlocking([tank_path + "/Level"])[0].value
-		inlet_open = system.tag.readBlocking([tank_path + "/InletValve"])[0].value
-		outlet_open = system.tag.readBlocking([tank_path + "/OutletValve"])[0].value
-		enabled = system.tag.readBlocking([tank_path + "/Enabled"])[0].value
-		
-		if not enabled:
-			continue
-		
-		# Simulate level changes
-		delta = 0.0
-		
-		# Pump running + inlet valve = filling
-		if pump_running and inlet_open and not backwash_in_progress:
-			delta += 1.5  # Fill rate per tick
-		
-		# Outlet valve or backwash = draining
-		if outlet_open or backwash_in_progress:
-			delta -= 0.8  # Drain rate per tick
-		
-		# Clamp level
-		new_level = max(0.0, min(100.0, level + delta))
-		
-		# Write back
-		system.tag.writeBlocking([tank_path + "/Level"], [new_level])
-		
-		# Update demand flag
-		low_sp = system.tag.readBlocking([tank_path + "/LowSP"])[0].value
-		demand = new_level < low_sp
-		system.tag.writeBlocking([tank_path + "/Demand"], [demand])
-
-
-# === VALVE PRIORITY ARBITRATION ===
-
-def update_valve_logic(base_path):
-	"""
-	Priority-based valve control: open inlet valve for highest-priority tank with demand.
-	"""
-	tank_names = ["Tank_A", "Tank_B", "Tank_C", "Tank_D"]
-	
-	# Gather tank states
-	tanks = []
-	for tank_name in tank_names:
-		tank_path = base_path + "/Tanks/" + tank_name
-		enabled = system.tag.readBlocking([tank_path + "/Enabled"])[0].value
-		demand = system.tag.readBlocking([tank_path + "/Demand"])[0].value
-		priority = system.tag.readBlocking([tank_path + "/Priority"])[0].value
-		level = system.tag.readBlocking([tank_path + "/Level"])[0].value
-		high_sp = system.tag.readBlocking([tank_path + "/HighSP"])[0].value
-		
-		if enabled and demand:
-			tanks.append({
-				"name": tank_name,
-				"path": tank_path,
-				"priority": priority,
-				"level": level,
-				"high_sp": high_sp
-			})
-	
-	# Sort by priority (0 = highest)
-	tanks.sort(key=lambda t: t["priority"])
-	
-	# Close all inlet valves first
-	for tank_name in tank_names:
-		tank_path = base_path + "/Tanks/" + tank_name
-		system.tag.writeBlocking([tank_path + "/InletValve"], [False])
-	
-	# Open inlet valve for highest-priority tank
-	if len(tanks) > 0:
-		winner = tanks[0]
-		# Only open if not yet at high setpoint
-		if winner["level"] < winner["high_sp"]:
-			system.tag.writeBlocking([winner["path"] + "/InletValve"], [True])
-	
-	# Update system-level demand flag
-	any_demand = len(tanks) > 0
-	system.tag.writeBlocking([base_path + "/System/AnyDemand"], [any_demand])
-
-
-# === PUMP CONTROL ===
-
-def update_pump(base_path):
-	"""
-	Pump logic:
-	- Auto mode: run if system demand exists
-	- Manual mode: follow command
-	"""
-	mode = system.tag.readBlocking([base_path + "/Pump/Mode"])[0].value
-	command = system.tag.readBlocking([base_path + "/Pump/Command"])[0].value
-	fault = system.tag.readBlocking([base_path + "/Pump/Fault"])[0].value
-	any_demand = system.tag.readBlocking([base_path + "/System/AnyDemand"])[0].value
-	fault_action = system.tag.readBlocking([base_path + "/Mode/FaultAction"])[0].value
-	
-	should_run = False
-	
-	if mode == "Auto":
-		should_run = any_demand
-	elif mode == "Manual":
-		should_run = command
-	
-	# Stop on fault if configured
-	if fault and fault_action == "Stop":
-		should_run = False
-	
-	# Update running state
-	currently_running = system.tag.readBlocking([base_path + "/Pump/Running"])[0].value
-	
-	if should_run != currently_running:
-		system.tag.writeBlocking([base_path + "/Pump/Running"], [should_run])
-		
-		if should_run:
-			# Record start time
-			system.tag.writeBlocking([base_path + "/Pump/LastStartTime"], [Date()])
-	
-	# Increment run hours (tick = 2s = 1/1800 hour)
-	if should_run:
-		run_hours = system.tag.readBlocking([base_path + "/Pump/RunHours"])[0].value
-		system.tag.writeBlocking([base_path + "/Pump/RunHours"], [run_hours + (2.0 / 3600.0)])
-
-
-# === BACKWASH SEQUENCE ===
-
-BACKWASH_STEPS = [
-	{"name": "Drain", "duration": 10},
-	{"name": "Rinse", "duration": 10},
-	{"name": "Refill", "duration": 10}
-]
-
-def update_backwash(base_path):
-	"""
-	Simple backwash state machine.
-	"""
-	in_progress = system.tag.readBlocking([base_path + "/Backwash/InProgress"])[0].value
-	command = system.tag.readBlocking([base_path + "/Backwash/Command"])[0].value
-	step = system.tag.readBlocking([base_path + "/Backwash/Step"])[0].value
-	progress = system.tag.readBlocking([base_path + "/Backwash/Progress"])[0].value
-	
-	if command and not in_progress:
-		# Start sequence
-		system.tag.writeBlocking([base_path + "/Backwash/InProgress"], [True])
-		system.tag.writeBlocking([base_path + "/Backwash/Step"], [BACKWASH_STEPS[0]["name"]])
-		system.tag.writeBlocking([base_path + "/Backwash/Progress"], [0.0])
-		system.tag.writeBlocking([base_path + "/Backwash/Command"], [False])
-	
-	if in_progress:
-		# Find current step index
-		current_idx = None
-		for i, s in enumerate(BACKWASH_STEPS):
-			if s["name"] == step:
-				current_idx = i
-				break
-		
-		if current_idx is None:
-			# Reset if invalid
-			system.tag.writeBlocking([base_path + "/Backwash/InProgress"], [False])
-			system.tag.writeBlocking([base_path + "/Backwash/Step"], ["Idle"])
-			return
-		
-		# Increment progress (each tick = 2s)
-		new_progress = progress + (2.0 / BACKWASH_STEPS[current_idx]["duration"]) * 100.0
-		
-		if new_progress >= 100.0:
-			# Move to next step
-			if current_idx + 1 < len(BACKWASH_STEPS):
-				system.tag.writeBlocking([base_path + "/Backwash/Step"], [BACKWASH_STEPS[current_idx + 1]["name"]])
-				system.tag.writeBlocking([base_path + "/Backwash/Progress"], [0.0])
-			else:
-				# Sequence complete
-				system.tag.writeBlocking([base_path + "/Backwash/InProgress"], [False])
-				system.tag.writeBlocking([base_path + "/Backwash/Step"], ["Idle"])
-				system.tag.writeBlocking([base_path + "/Backwash/Progress"], [0.0])
-				system.tag.writeBlocking([base_path + "/Backwash/LastRun"], [Date()])
-		else:
-			system.tag.writeBlocking([base_path + "/Backwash/Progress"], [new_progress])
-
-
-# === MAIN TICK ===
-
 def run_tick(base_path):
 	"""
-	Main simulation loop - call this from a gateway timer every 2 seconds.
+	Main simulation loop matching React App.tsx lines 100-195
 	
 	Args:
-	    base_path: Tag path to the demo folder, e.g. "[default]YW_Demo"
+	    base_path: Tag path to demo folder, e.g. "[default]YW_Demo"
 	"""
 	# Check if simulation is active
 	sim_active = system.tag.readBlocking([base_path + "/System/SimulationActive"])[0].value
 	if not sim_active:
 		return
 	
-	# Update backwash first
-	update_backwash(base_path)
+	# Check if initialized
+	initialized = system.tag.readBlocking([base_path + "/Config/Initialized"])[0].value
+	if not initialized:
+		return
 	
-	# Read pump & backwash state
-	pump_running = system.tag.readBlocking([base_path + "/Pump/Running"])[0].value
-	backwash_in_progress = system.tag.readBlocking([base_path + "/Backwash/InProgress"])[0].value
+	# === STEP 1: Calculate Effective Fault (lines 108-112) ===
+	mode_tags = {
+		"eStop": system.tag.readBlocking([base_path + "/Mode/EStop"])[0].value,
+		"pressureFault": system.tag.readBlocking([base_path + "/Mode/PressureFault"])[0].value,
+		"flowFault": system.tag.readBlocking([base_path + "/Mode/FlowFault"])[0].value,
+		"bypassPFFault": system.tag.readBlocking([base_path + "/Mode/BypassPFFault"])[0].value,
+		"autoSelected": system.tag.readBlocking([base_path + "/Mode/AutoSelected"])[0].value,
+	}
 	
-	# Update tank levels
-	update_tank_levels(base_path, pump_running, backwash_in_progress)
+	effective_fault = (
+		mode_tags["eStop"] or 
+		(mode_tags["pressureFault"] and not mode_tags["bypassPFFault"]) or
+		mode_tags["flowFault"]
+	)
+	system.tag.writeBlocking([base_path + "/Mode/EffectiveFault"], [effective_fault])
 	
-	# Update valve logic
-	update_valve_logic(base_path)
 	
-	# Update pump
-	update_pump(base_path)
+	# === STEP 2: Update Tank Fill Requests (lines 115-124) ===
+	tank_names = ["Tank_1", "Tank_2", "Tank_3", "Tank_4"]
+	tank_data = []
 	
-	# Update last update timestamp
+	for tank_name in tank_names:
+		tank_path = base_path + "/Tanks/" + tank_name
+		
+		level_pct = system.tag.readBlocking([tank_path + "/LevelPct"])[0].value
+		low_sp = system.tag.readBlocking([tank_path + "/LowSP"])[0].value
+		enabled = system.tag.readBlocking([tank_path + "/Enabled"])[0].value
+		auto_enable = system.tag.readBlocking([tank_path + "/AutoEnable"])[0].value
+		sensor_open = system.tag.readBlocking([tank_path + "/SensorOpen"])[0].value
+		priority = system.tag.readBlocking([tank_path + "/Priority"])[0].value
+		
+		# Compute fill request (matching React logic line 117-121)
+		fill_req = (
+			enabled and 
+			auto_enable and 
+			level_pct < low_sp and 
+			not sensor_open and
+			mode_tags["autoSelected"] and
+			not effective_fault
+		)
+		
+		system.tag.writeBlocking([tank_path + "/FillReq"], [fill_req])
+		
+		tank_data.append({
+			"path": tank_path,
+			"priority": priority,
+			"fillReq": fill_req,
+			"levelPct": level_pct
+		})
+	
+	
+	# === STEP 3: Priority Arbitration (lines 126-143) ===
+	backwash_active = system.tag.readBlocking([base_path + "/Backwash/Active"])[0].value
+	
+	requesting_tanks = [t for t in tank_data if t["fillReq"]]
+	
+	if len(requesting_tanks) > 0 and not backwash_active:
+		# Sort by priority (1=highest, React line 129)
+		requesting_tanks.sort(key=lambda t: t["priority"])
+		winner = requesting_tanks[0]
+		
+		# Set valve commands
+		for tank in tank_data:
+			valve_cmd = (tank["path"] == winner["path"])
+			system.tag.writeBlocking([tank["path"] + "/ValveCmd"], [valve_cmd])
+			system.tag.writeBlocking([tank["path"] + "/ValveOutput"], [valve_cmd])
+	else:
+		# Close all valves
+		for tank in tank_data:
+			system.tag.writeBlocking([tank["path"] + "/ValveCmd"], [False])
+			system.tag.writeBlocking([tank["path"] + "/ValveOutput"], [False])
+	
+	
+	# === STEP 4: Calculate Any Demand (line 146) ===
+	any_valve_cmd = any(system.tag.readBlocking([t["path"] + "/ValveCmd"])[0].value for t in tank_data)
+	any_demand = any_valve_cmd or backwash_active
+	system.tag.writeBlocking([base_path + "/Pump/AnyDemand"], [any_demand])
+	
+	
+	# === STEP 5: Pump Request and Running Logic (lines 149-164) ===
+	pump_running = system.tag.readBlocking([base_path + "/Pump/PumpRunning"])[0].value
+	asc_min_off_timer = system.tag.readBlocking([base_path + "/Pump/ASCMinOffTimer"])[0].value
+	asc_min_run_timer = system.tag.readBlocking([base_path + "/Pump/ASCMinRunTimer"])[0].value
+	
+	if not effective_fault:
+		pump_request = any_demand
+		system.tag.writeBlocking([base_path + "/Pump/PumpRequest"], [pump_request])
+		
+		# Start pump if request and not running and ASC min-off satisfied
+		if pump_request and not pump_running:
+			if not asc_min_off_timer:
+				system.tag.writeBlocking([base_path + "/Pump/PumpRunning"], [True])
+		
+		# Stop pump if no request and running and ASC min-run satisfied
+		elif not pump_request and pump_running:
+			if not asc_min_run_timer:
+				system.tag.writeBlocking([base_path + "/Pump/PumpRunning"], [False])
+	else:
+		# Fault active - stop pump
+		system.tag.writeBlocking([base_path + "/Pump/PumpRunning"], [False])
+		system.tag.writeBlocking([base_path + "/Pump/PumpRequest"], [False])
+	
+	
+	# === STEP 6: Simulate Tank Filling (lines 167-177) ===
+	pump_running = system.tag.readBlocking([base_path + "/Pump/PumpRunning"])[0].value
+	
+	for tank in tank_data:
+		valve_cmd = system.tag.readBlocking([tank["path"] + "/ValveCmd"])[0].value
+		
+		if valve_cmd and pump_running and not effective_fault:
+			# Fill tank at 0.3% per tick (React line 170)
+			new_level = min(tank["levelPct"] + 0.3, 100.0)
+			system.tag.writeBlocking([tank["path"] + "/LevelPct"], [new_level])
+			system.tag.writeBlocking([tank["path"] + "/LevelX10"], [int(round(new_level * 10))])
+	
+	
+	# === STEP 7: Backwash Timer (lines 180-188) ===
+	backwash_timer_pv = system.tag.readBlocking([base_path + "/Backwash/TimerPV"])[0].value
+	backwash_duration = system.tag.readBlocking([base_path + "/Backwash/DurationSetting"])[0].value
+	
+	if backwash_active and backwash_timer_pv < backwash_duration:
+		# Increment timer by 2 seconds (React line 181)
+		new_timer_pv = backwash_timer_pv + 2
+		system.tag.writeBlocking([base_path + "/Backwash/TimerPV"], [new_timer_pv])
+		system.tag.writeBlocking([base_path + "/Backwash/Valve"], [True])
+	
+	elif backwash_active and backwash_timer_pv >= backwash_duration:
+		# Backwash complete (React lines 183-187)
+		system.tag.writeBlocking([base_path + "/Backwash/Active"], [False])
+		system.tag.writeBlocking([base_path + "/Backwash/Valve"], [False])
+		system.tag.writeBlocking([base_path + "/Backwash/TimerPV"], [0])
+		system.tag.writeBlocking([base_path + "/Backwash/Start"], [False])
+	
+	
+	# === Update System Timestamp ===
 	system.tag.writeBlocking([base_path + "/System/LastUpdate"], [Date()])
 
 
 # === HELPER FUNCTIONS FOR PERSPECTIVE ===
 
-def get_tank_snapshot():
+def get_tank_snapshot(base_path="[default]YW_Demo"):
 	"""
 	Return a Python list of tank dictionaries for display in Perspective tables/repeaters.
+	Matches React's tank structure.
 	"""
-	base_path = "[default]YW_Demo"
-	tank_names = ["Tank_A", "Tank_B", "Tank_C", "Tank_D"]
+	tank_names = ["Tank_1", "Tank_2", "Tank_3", "Tank_4"]
 	
 	tanks = []
 	for tank_name in tank_names:
 		tank_path = base_path + "/Tanks/" + tank_name
+		
 		name = system.tag.readBlocking([tank_path + "/Name"])[0].value
-		level = system.tag.readBlocking([tank_path + "/Level"])[0].value
+		level_pct = system.tag.readBlocking([tank_path + "/LevelPct"])[0].value
 		enabled = system.tag.readBlocking([tank_path + "/Enabled"])[0].value
-		demand = system.tag.readBlocking([tank_path + "/Demand"])[0].value
+		fill_req = system.tag.readBlocking([tank_path + "/FillReq"])[0].value
+		valve_cmd = system.tag.readBlocking([tank_path + "/ValveCmd"])[0].value
+		priority = system.tag.readBlocking([tank_path + "/Priority"])[0].value
 		
 		tanks.append({
 			"name": name,
-			"level": level,
+			"levelPct": level_pct,
 			"enabled": enabled,
-			"demand": demand,
+			"fillReq": fill_req,
+			"valveCmd": valve_cmd,
+			"priority": priority,
 			"path": tank_path
 		})
 	
 	return tanks
 
 
-def get_diagnostics_data():
+def get_diagnostics_data(base_path="[default]YW_Demo"):
 	"""
 	Return diagnostic data as a dataset for the diagnostics screen.
 	"""
-	base_path = "[default]YW_Demo"
-	
 	rows = []
 	
 	# Pump diagnostics
-	pump_running = system.tag.readBlocking([base_path + "/Pump/Running"])[0].value
-	pump_fault = system.tag.readBlocking([base_path + "/Pump/Fault"])[0].value
-	pump_hours = system.tag.readBlocking([base_path + "/Pump/RunHours"])[0].value
+	pump_running = system.tag.readBlocking([base_path + "/Pump/PumpRunning"])[0].value
+	pump_request = system.tag.readBlocking([base_path + "/Pump/PumpRequest"])[0].value
+	any_demand = system.tag.readBlocking([base_path + "/Pump/AnyDemand"])[0].value
+	asc_min_off = system.tag.readBlocking([base_path + "/Pump/ASCMinOffTimer"])[0].value
+	asc_min_run = system.tag.readBlocking([base_path + "/Pump/ASCMinRunTimer"])[0].value
 	
 	rows.append({
 		"component": "Pump",
 		"parameter": "Running",
 		"value": "Yes" if pump_running else "No",
-		"status": "OK" if not pump_fault else "Fault",
+		"status": "Running" if pump_running else "Stopped",
 		"lastUpdate": str(Date())
 	})
 	
 	rows.append({
 		"component": "Pump",
-		"parameter": "Run Hours",
-		"value": "%.1f hrs" % pump_hours,
+		"parameter": "Request",
+		"value": "Yes" if pump_request else "No",
 		"status": "OK",
 		"lastUpdate": str(Date())
 	})
 	
+	rows.append({
+		"component": "Pump",
+		"parameter": "Any Demand",
+		"value": "Yes" if any_demand else "No",
+		"status": "OK",
+		"lastUpdate": str(Date())
+	})
+	
+	# Mode diagnostics
+	auto_selected = system.tag.readBlocking([base_path + "/Mode/AutoSelected"])[0].value
+	effective_fault = system.tag.readBlocking([base_path + "/Mode/EffectiveFault"])[0].value
+	
+	rows.append({
+		"component": "Mode",
+		"parameter": "Control Mode",
+		"value": "AUTO" if auto_selected else "MANUAL",
+		"status": "OK",
+		"lastUpdate": str(Date())
+	})
+	
+	rows.append({
+		"component": "Mode",
+		"parameter": "Effective Fault",
+		"value": "FAULT" if effective_fault else "OK",
+		"status": "Fault" if effective_fault else "OK",
+		"lastUpdate": str(Date())
+	})
+	
 	# Tank diagnostics
-	tank_names = ["Tank_A", "Tank_B", "Tank_C", "Tank_D"]
+	tank_names = ["Tank_1", "Tank_2", "Tank_3", "Tank_4"]
 	for tank_name in tank_names:
 		tank_path = base_path + "/Tanks/" + tank_name
 		name = system.tag.readBlocking([tank_path + "/Name"])[0].value
-		level = system.tag.readBlocking([tank_path + "/Level"])[0].value
+		level_pct = system.tag.readBlocking([tank_path + "/LevelPct"])[0].value
 		enabled = system.tag.readBlocking([tank_path + "/Enabled"])[0].value
+		fill_req = system.tag.readBlocking([tank_path + "/FillReq"])[0].value
 		
 		rows.append({
 			"component": name,
 			"parameter": "Level",
-			"value": "%.1f%%" % level,
-			"status": "OK" if enabled else "Disabled",
+			"value": "%.1f%%" % level_pct,
+			"status": "Filling" if fill_req else ("OK" if enabled else "Disabled"),
 			"lastUpdate": str(Date())
 		})
 	
-	return system.dataset.toDataSet(["component", "parameter", "value", "status", "lastUpdate"], rows)
+	# Backwash diagnostics
+	backwash_active = system.tag.readBlocking([base_path + "/Backwash/Active"])[0].value
+	backwash_timer_pv = system.tag.readBlocking([base_path + "/Backwash/TimerPV"])[0].value
+	
+	rows.append({
+		"component": "Backwash",
+		"parameter": "Active",
+		"value": "Yes (%ds)" % backwash_timer_pv if backwash_active else "No",
+		"status": "Active" if backwash_active else "Idle",
+		"lastUpdate": str(Date())
+	})
+	
+	return system.dataset.toDataSet(
+		["component", "parameter", "value", "status", "lastUpdate"], 
+		rows
+	)
+
+
+def get_pump_status_summary(base_path="[default]YW_Demo"):
+	"""
+	Return a summary dict for pump status cards.
+	"""
+	return {
+		"running": system.tag.readBlocking([base_path + "/Pump/PumpRunning"])[0].value,
+		"request": system.tag.readBlocking([base_path + "/Pump/PumpRequest"])[0].value,
+		"anyDemand": system.tag.readBlocking([base_path + "/Pump/AnyDemand"])[0].value,
+		"available": system.tag.readBlocking([base_path + "/Pump/PumpAvailable"])[0].value,
+		"ascMinOffActive": system.tag.readBlocking([base_path + "/Pump/ASCMinOffTimer"])[0].value,
+		"ascMinRunActive": system.tag.readBlocking([base_path + "/Pump/ASCMinRunTimer"])[0].value,
+	}

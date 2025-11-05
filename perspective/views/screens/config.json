@@ -72,7 +72,7 @@
                     "binding": {
                       "type": "tag",
                       "config": {
-                        "tagPath": "[default]YW_Demo/Mode/Selector",
+                        "tagPath": "[default]YW_Demo/Mode/AutoSelected",
                         "bidirectional": true
                       }
                     }
@@ -80,8 +80,8 @@
                 },
                 "props": {
                   "options": [
-                    {"value": "Auto", "label": "Automatic"},
-                    {"value": "Manual", "label": "Manual"}
+                    {"value": true, "label": "Automatic"},
+                    {"value": false, "label": "Manual"}
                   ],
                   "style": {
                     "minWidth": "200px"
@@ -127,7 +127,7 @@
                     "binding": {
                       "type": "tag",
                       "config": {
-                        "tagPath": "[default]YW_Demo/Mode/FaultAction",
+                        "tagPath": "[default]YW_Demo/Mode/BypassPFFault",
                         "bidirectional": true
                       }
                     }
@@ -135,8 +135,8 @@
                 },
                 "props": {
                   "options": [
-                    {"value": "Continue", "label": "Continue Operation"},
-                    {"value": "Stop", "label": "Stop on Fault"}
+                    {"value": false, "label": "Normal (No Bypass)"},
+                    {"value": true, "label": "Bypass Pressure/Flow Faults"}
                   ],
                   "style": {
                     "minWidth": "200px"
@@ -155,7 +155,7 @@
                 "onActionPerformed": [
                   {
                     "scope": "session",
-                    "script": "system.tag.writeBlocking(['[default]YW_Demo/System/Initialized'], [True])\nsystem.perspective.print('System Initialized')"
+                    "script": "system.tag.writeBlocking(['[default]YW_Demo/Config/Initialized'], [True])\nsystem.perspective.print('System Initialized')"
                   }
                 ]
               }

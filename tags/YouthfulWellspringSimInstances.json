@@ -3,6 +3,11 @@
   "tagType": "Folder",
   "tags": [
     {
+      "name": "Config",
+      "tagType": "UdtInstance",
+      "typeId": "YW_SystemConfig"
+    },
+    {
       "name": "System",
       "tagType": "UdtInstance",
       "typeId": "YW_System"
@@ -27,55 +32,71 @@
       "tagType": "Folder",
       "tags": [
         {
-          "name": "Tank_A",
+          "name": "Tank_1",
           "tagType": "UdtInstance",
           "typeId": "YW_Tank",
           "parameters": {
-            "Name": "Tank A",
-            "Level": 65.0,
-            "LowSP": 20.0,
-            "HighSP": 80.0,
-            "Priority": 0,
-            "Enabled": true
-          }
-        },
-        {
-          "name": "Tank_B",
-          "tagType": "UdtInstance",
-          "typeId": "YW_Tank",
-          "parameters": {
-            "Name": "Tank B",
-            "Level": 45.0,
-            "LowSP": 20.0,
-            "HighSP": 80.0,
+            "Name": "Tank 1",
+            "LevelPct": 65.0,
+            "LevelX10": 650,
+            "LowSP": 40.0,
+            "HighSP": 95.0,
             "Priority": 1,
-            "Enabled": true
+            "Enabled": true,
+            "AutoEnable": true,
+            "ManEnable": false,
+            "OOS": false
           }
         },
         {
-          "name": "Tank_C",
+          "name": "Tank_2",
           "tagType": "UdtInstance",
           "typeId": "YW_Tank",
           "parameters": {
-            "Name": "Tank C",
-            "Level": 30.0,
-            "LowSP": 20.0,
-            "HighSP": 80.0,
+            "Name": "Tank 2",
+            "LevelPct": 45.0,
+            "LevelX10": 450,
+            "LowSP": 40.0,
+            "HighSP": 95.0,
             "Priority": 2,
-            "Enabled": true
+            "Enabled": true,
+            "AutoEnable": true,
+            "ManEnable": false,
+            "OOS": false
           }
         },
         {
-          "name": "Tank_D",
+          "name": "Tank_3",
           "tagType": "UdtInstance",
           "typeId": "YW_Tank",
           "parameters": {
-            "Name": "Tank D",
-            "Level": 55.0,
-            "LowSP": 20.0,
-            "HighSP": 80.0,
+            "Name": "Tank 3",
+            "LevelPct": 30.0,
+            "LevelX10": 300,
+            "LowSP": 40.0,
+            "HighSP": 95.0,
             "Priority": 3,
-            "Enabled": false
+            "Enabled": true,
+            "AutoEnable": true,
+            "ManEnable": false,
+            "OOS": false
+          }
+        },
+        {
+          "name": "Tank_4",
+          "tagType": "UdtInstance",
+          "typeId": "YW_Tank",
+          "parameters": {
+            "Name": "Tank 4",
+            "LevelPct": 55.0,
+            "LevelX10": 550,
+            "LowSP": 40.0,
+            "HighSP": 95.0,
+            "Priority": 4,
+            "Enabled": true,
+            "AutoEnable": true,
+            "ManEnable": false,
+            "OOS": false
           }
         }
       ]
