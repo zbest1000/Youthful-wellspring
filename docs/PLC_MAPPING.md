@@ -84,7 +84,9 @@ The UDT structure is designed to mirror Click PLC (AutomationDirect) memory orga
 | **`Tanks/Tank_1/ValveOutput`** | **Y002** | **00002** | **Coil** | Bool | R | **Valve output** |
 | `Tanks/Tank_1/SensorOpen` | C200 | 00200 | Coil | Bool | R | Sensor fault |
 
-### Tank 2-8 Modbus Addresses
+### Tank 1-8 Modbus Addresses (Configurable System)
+
+**Note:** All 8 tanks are defined in the tag structure, but only tanks 1-N are active based on `Config/TankCount`.
 
 | Tank | LevelPct (DF) | LowSP (DS) | HighSP (DS) | Priority (DS) | Enabled (C) | FillReq (C) | ValveCmd (C) | ValveOutput (Y) |
 |------|---------------|------------|-------------|---------------|-------------|-------------|--------------|-----------------|
@@ -96,6 +98,13 @@ The UDT structure is designed to mirror Click PLC (AutomationDirect) memory orga
 | **Tank_6** | 400011-400012 | 401250 | 401251 | 401252 | 00120 | 00145 | 00166 | 00007 |
 | **Tank_7** | 400013-400014 | 401260 | 401261 | 401262 | 00124 | 00146 | 00167 | 00008 |
 | **Tank_8** | 400015-400016 | 401270 | 401271 | 401272 | 00128 | 00147 | 00168 | 00009 |
+
+**Dynamic Configuration:**
+- System supports 1-8 tanks based on `Config/TankCount` setting
+- Tanks 1-4: Enabled by default (standard configuration)
+- Tanks 5-8: Disabled by default (optional expansion tanks)
+- PLC should monitor `Enabled` flag (C100, C104, C108, etc.) to determine active tanks
+- Only enabled tanks participate in fill arbitration and control logic
 
 ---
 
@@ -148,10 +157,51 @@ The UDT structure is designed to mirror Click PLC (AutomationDirect) memory orga
 
 | Ignition UDT Tag | PLC Address | Data Type | R/W | Description |
 |-----------------|-------------|-----------|-----|-------------|
-| `Config/TankCount` | (HMI Only) | Int | R | Number of tanks (1-8) - not in PLC |
-| `Config/SiteName` | (HMI Only) | String | R | Site name - not in PLC |
-| `Config/Location` | (HMI Only) | String | R | Site location - not in PLC |
+| **`Config/TankCount`** | **(HMI Only)** | **Int** | **R/W** | **Number of tanks (1-8) - Configurable via HMI** |
+| `Config/SiteName` | (HMI Only) | String | R/W | Site name - not in PLC |
+| `Config/Location` | (HMI Only) | String | R/W | Site location - not in PLC |
 | `Config/Initialized` | (HMI Only) | Bool | R/W | System initialization flag - not in PLC |
+
+### Tank Count Configuration
+
+**Important:** The `Config/TankCount` tag determines how many tanks are active in the system (1-8).
+
+**HMI Configuration:**
+- User configures tank count via Config screen (buttons 1-8)
+- HMI automatically enables Tank_1 through Tank_N
+- HMI automatically disables Tank_N+1 through Tank_8
+- Simulation script dynamically processes only configured tanks
+
+**PLC Implementation Options:**
+
+**Option 1: PLC Controls Tank Count (Recommended for Production)**
+- Map `Config/TankCount` to a PLC register (e.g., DS1100)
+- PLC reads count and only processes enabled tanks in ladder logic
+- PLC program adapts to different tank configurations automatically
+
+**Option 2: HMI Controls Tank Count (Recommended for Demo/Training)**
+- Keep `Config/TankCount` as HMI-only tag
+- Operator configures via HMI Config screen
+- PLC processes all tanks, HMI filters display
+
+**Example PLC Mapping (Option 1):**
+```
+Config/TankCount → DS1100 (Holding Register 401100)
+  Data Type: Int16
+  Valid Range: 1-8
+  Default: 4
+```
+
+**Tank Enable Flags:**
+Each tank has an `Enabled` flag that can be written by either HMI or PLC:
+- `Tank_1/Enabled` → C100 (Read/Write)
+- `Tank_2/Enabled` → C104 (Read/Write)
+- `Tank_3/Enabled` → C108 (Read/Write)
+- `Tank_4/Enabled` → C112 (Read/Write)
+- `Tank_5/Enabled` → C116 (Read/Write)
+- `Tank_6/Enabled` → C120 (Read/Write)
+- `Tank_7/Enabled` → C124 (Read/Write)
+- `Tank_8/Enabled` → C128 (Read/Write)
 
 ---
 
@@ -219,34 +269,52 @@ Repeat for Tank 2-8 (as configured):
 ### PLC Program Structure
 
 **Scan Order:**
-1. Read analog inputs → Scale to DF1-DF4
+1. Read analog inputs → Scale to DF1-DF8 (only scale inputs for enabled tanks)
 2. Read digital inputs (X001-X023) → Mode, faults
-3. **Tank Control Logic:**
-   - Calculate fill requests (C140-C143)
-   - Priority arbitration → Valve commands (C161-C164)
-   - Map valve commands to outputs (Y002-Y005)
-4. **Pump Control Logic:**
-   - Aggregate demand (C040)
+3. **Read Configuration:**
+   - Read tank count from DS1100 (optional) or read Enabled flags (C100, C104, C108, etc.)
+4. **Tank Control Logic:**
+   - Calculate fill requests (C140-C147) for enabled tanks only
+   - Priority arbitration → Valve commands (C161-C168)
+   - Map valve commands to outputs (Y002-Y009) for enabled tanks only
+5. **Pump Control Logic:**
+   - Aggregate demand (C040) from enabled tanks
    - Anti-short-cycle timers (T1, T2)
    - Pump output (Y001)
-5. **Backwash Logic:**
+6. **Backwash Logic:**
    - Monitor start command (C030)
    - Timer control (T10)
    - Valve output (Y010)
-6. Write outputs
-7. Update status registers for HMI
+7. Write outputs (only for enabled tanks)
+8. Update status registers for HMI
+
+**Dynamic Tank Processing Example (Ladder Logic Concept):**
+```
+For Tank_1 through Tank_8:
+  IF Enabled (C100/C104/C108/etc.) THEN
+    - Process fill request logic
+    - Participate in priority arbitration
+    - Allow valve control
+  ELSE
+    - Set FillReq = False
+    - Set ValveCmd = False
+    - Set ValveOutput = False
+  END IF
+```
 
 ### Wiring Diagram Reference
 
-**Analog Inputs (4-20mA):**
-- X001: Tank 1 Level Sensor
-- X002: Tank 2 Level Sensor
-- X003: Tank 3 Level Sensor
-- X004: Tank 4 Level Sensor
-- X005: Tank 5 Level Sensor (optional)
-- X006: Tank 6 Level Sensor (optional)
-- X007: Tank 7 Level Sensor (optional)
-- X008: Tank 8 Level Sensor (optional)
+**Analog Inputs (4-20mA) - Configurable 1-8 Tanks:**
+- X001: Tank 1 Level Sensor (always used)
+- X002: Tank 2 Level Sensor (if TankCount ≥ 2)
+- X003: Tank 3 Level Sensor (if TankCount ≥ 3)
+- X004: Tank 4 Level Sensor (if TankCount ≥ 4)
+- X005: Tank 5 Level Sensor (if TankCount ≥ 5, optional)
+- X006: Tank 6 Level Sensor (if TankCount ≥ 6, optional)
+- X007: Tank 7 Level Sensor (if TankCount ≥ 7, optional)
+- X008: Tank 8 Level Sensor (if TankCount = 8, optional)
+
+**Note:** Only wire and scale analog inputs for the number of tanks actually installed.
 
 **Digital Inputs:**
 - X001: E-Stop (NC contact)
@@ -256,17 +324,19 @@ Repeat for Tank 2-8 (as configured):
 - X022: Manual Mode Selector
 - X023: System Stop Selector
 
-**Digital Outputs:**
-- Y001: Pump Contactor
-- Y002: Tank 1 Inlet Valve
-- Y003: Tank 2 Inlet Valve
-- Y004: Tank 3 Inlet Valve
-- Y005: Tank 4 Inlet Valve
-- Y006: Tank 5 Inlet Valve (optional)
-- Y007: Tank 6 Inlet Valve (optional)
-- Y008: Tank 7 Inlet Valve (optional)
-- Y009: Tank 8 Inlet Valve (optional)
-- Y010: Backwash Valve
+**Digital Outputs - Configurable 1-8 Tanks:**
+- Y001: Pump Contactor (always used)
+- Y002: Tank 1 Inlet Valve (always used)
+- Y003: Tank 2 Inlet Valve (if TankCount ≥ 2)
+- Y004: Tank 3 Inlet Valve (if TankCount ≥ 3)
+- Y005: Tank 4 Inlet Valve (if TankCount ≥ 4)
+- Y006: Tank 5 Inlet Valve (if TankCount ≥ 5, optional)
+- Y007: Tank 6 Inlet Valve (if TankCount ≥ 6, optional)
+- Y008: Tank 7 Inlet Valve (if TankCount ≥ 7, optional)
+- Y009: Tank 8 Inlet Valve (if TankCount = 8, optional)
+- Y010: Backwash Valve (always used)
+
+**Note:** Only wire outputs for the number of tanks actually installed. Unused outputs can remain unconnected.
 
 ---
 
@@ -373,11 +443,18 @@ Recommended scan classes for optimal performance:
 ## Import Process for Production
 
 1. **Import UDTs** as memory tags initially (for structure)
-2. **Edit tag instances** one-by-one to change `valueSource` from `memory` to `opc`
-3. **Set OPC Item Path** for each tag
-4. **Test read/write** on individual tags before enabling full system
-5. **Disable simulation** by setting `System/SimulationActive` = False
-6. **Delete gateway timer script** (no longer needed)
+2. **Configure tank count** via HMI Config screen (1-8 tanks)
+3. **Edit tag instances** one-by-one to change `valueSource` from `memory` to `opc`
+4. **Set OPC Item Path** for each tag (for all 8 tanks, even if not all enabled)
+5. **Test read/write** on individual tags before enabling full system
+6. **Disable simulation** by setting `System/SimulationActive` = False
+7. **Delete gateway timer script** (no longer needed)
+8. **Verify only enabled tanks** are processing in PLC and HMI
+
+**Important for Configurable Tanks:**
+- Map all 8 tank UDT instances to PLC addresses (even if not all tanks are installed)
+- PLC should handle missing sensors gracefully (e.g., sensor open fault on unused tanks)
+- Alternatively, only map tags for installed tanks and leave unused tanks as memory tags
 
 ---
 
@@ -385,7 +462,8 @@ Recommended scan classes for optimal performance:
 
 After mapping all tags:
 
-- [ ] Tank levels display live PLC values
+**Basic Connectivity:**
+- [ ] Tank levels display live PLC values (for all enabled tanks)
 - [ ] Valve commands write to PLC outputs
 - [ ] Pump responds to demand signals
 - [ ] Mode selector switches read from PLC
@@ -395,6 +473,17 @@ After mapping all tags:
 - [ ] All alarms trigger correctly
 - [ ] Tag history records data
 - [ ] No binding errors in Designer
+
+**Tank Configuration Feature:**
+- [ ] Config screen allows selection of 1-8 tanks
+- [ ] Changing tank count enables/disables appropriate tank instances
+- [ ] Only enabled tanks visible in Overview screen
+- [ ] Active Tanks card shows correct "X / Y" count
+- [ ] Simulation processes only enabled tanks
+- [ ] Priority arbitration works across all enabled tanks
+- [ ] Disabled tanks do not participate in fill requests
+- [ ] PLC respects Enabled flag (if mapped to PLC)
+- [ ] System works correctly with 1, 4, and 8 tank configurations
 
 ---
 
