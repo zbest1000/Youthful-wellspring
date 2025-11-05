@@ -1,0 +1,73 @@
+{
+  "custom": {},
+  "params": {},
+  "propConfig": {},
+  "props": {},
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Title"
+        },
+        "position": {
+          "basis": "60px"
+        },
+        "props": {
+          "text": "Alarms & Events",
+          "style": {
+            "classes": "screen-title"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "AlarmTable"
+        },
+        "position": {
+          "grow": 1
+        },
+        "props": {
+          "filter": {
+            "state": ["ActiveUnacked", "ActiveAcked"]
+          },
+          "columns": {
+            "priority": {
+              "visible": true,
+              "render": "icon",
+              "width": 80
+            },
+            "name": {
+              "visible": true,
+              "width": 300
+            },
+            "label": {
+              "visible": true,
+              "width": 400
+            },
+            "activeTime": {
+              "visible": true,
+              "width": 200
+            },
+            "value": {
+              "visible": true,
+              "width": 150
+            }
+          },
+          "style": {
+            "margin": "16px",
+            "classes": "card"
+          }
+        },
+        "type": "ia.display.alarmstatustable"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}

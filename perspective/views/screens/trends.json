@@ -1,0 +1,104 @@
+{
+  "custom": {},
+  "params": {},
+  "propConfig": {},
+  "props": {},
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Title"
+        },
+        "position": {
+          "basis": "60px"
+        },
+        "props": {
+          "text": "Historical Trends",
+          "style": {
+            "classes": "screen-title"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "TrendChart"
+        },
+        "position": {
+          "grow": 1
+        },
+        "props": {
+          "pens": [
+            {
+              "data": {
+                "tagPath": "[default]YW_Demo/Tanks/Tank_A/Level",
+                "dataAggregation": "Average",
+                "deadband": 0
+              },
+              "display": {
+                "name": "Tank A",
+                "color": "#3b82f6",
+                "enabled": true
+              }
+            },
+            {
+              "data": {
+                "tagPath": "[default]YW_Demo/Tanks/Tank_B/Level",
+                "dataAggregation": "Average",
+                "deadband": 0
+              },
+              "display": {
+                "name": "Tank B",
+                "color": "#10b981",
+                "enabled": true
+              }
+            },
+            {
+              "data": {
+                "tagPath": "[default]YW_Demo/Tanks/Tank_C/Level",
+                "dataAggregation": "Average",
+                "deadband": 0
+              },
+              "display": {
+                "name": "Tank C",
+                "color": "#f59e0b",
+                "enabled": true
+              }
+            },
+            {
+              "data": {
+                "tagPath": "[default]YW_Demo/Tanks/Tank_D/Level",
+                "dataAggregation": "Average",
+                "deadband": 0
+              },
+              "display": {
+                "name": "Tank D",
+                "color": "#8b5cf6",
+                "enabled": true
+              }
+            }
+          ],
+          "timeRange": {
+            "relativeStart": {
+              "value": 1,
+              "units": "hour"
+            },
+            "relativeEnd": "now"
+          },
+          "style": {
+            "margin": "16px",
+            "classes": "card"
+          }
+        },
+        "type": "ia.chart.timeseries"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}

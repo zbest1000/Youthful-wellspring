@@ -1,0 +1,84 @@
+{
+  "name": "YW_Demo",
+  "tagType": "Folder",
+  "tags": [
+    {
+      "name": "System",
+      "tagType": "UdtInstance",
+      "typeId": "YW_System"
+    },
+    {
+      "name": "Mode",
+      "tagType": "UdtInstance",
+      "typeId": "YW_Mode"
+    },
+    {
+      "name": "Pump",
+      "tagType": "UdtInstance",
+      "typeId": "YW_Pump"
+    },
+    {
+      "name": "Backwash",
+      "tagType": "UdtInstance",
+      "typeId": "YW_Backwash"
+    },
+    {
+      "name": "Tanks",
+      "tagType": "Folder",
+      "tags": [
+        {
+          "name": "Tank_A",
+          "tagType": "UdtInstance",
+          "typeId": "YW_Tank",
+          "parameters": {
+            "Name": "Tank A",
+            "Level": 65.0,
+            "LowSP": 20.0,
+            "HighSP": 80.0,
+            "Priority": 0,
+            "Enabled": true
+          }
+        },
+        {
+          "name": "Tank_B",
+          "tagType": "UdtInstance",
+          "typeId": "YW_Tank",
+          "parameters": {
+            "Name": "Tank B",
+            "Level": 45.0,
+            "LowSP": 20.0,
+            "HighSP": 80.0,
+            "Priority": 1,
+            "Enabled": true
+          }
+        },
+        {
+          "name": "Tank_C",
+          "tagType": "UdtInstance",
+          "typeId": "YW_Tank",
+          "parameters": {
+            "Name": "Tank C",
+            "Level": 30.0,
+            "LowSP": 20.0,
+            "HighSP": 80.0,
+            "Priority": 2,
+            "Enabled": true
+          }
+        },
+        {
+          "name": "Tank_D",
+          "tagType": "UdtInstance",
+          "typeId": "YW_Tank",
+          "parameters": {
+            "Name": "Tank D",
+            "Level": 55.0,
+            "LowSP": 20.0,
+            "HighSP": 80.0,
+            "Priority": 3,
+            "Enabled": false
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,332 @@
+{
+  "custom": {},
+  "params": {
+    "tankPath": {
+      "dataType": "String",
+      "value": "[default]YW_Demo/Tanks/Tank_A"
+    }
+  },
+  "propConfig": {},
+  "props": {
+    "defaultSize": {
+      "height": 600,
+      "width": 500
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Header"
+        },
+        "position": {
+          "basis": "60px"
+        },
+        "propConfig": {
+          "text": {
+            "binding": {
+              "type": "expr",
+              "config": {
+                "expression": "'{' + {view.params.tankPath} + '/Name}' + ' Details'"
+              }
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "popup-title",
+            "padding": "16px"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "TankVisual"
+        },
+        "position": {
+          "basis": "200px"
+        },
+        "props": {
+          "direction": "column",
+          "alignItems": "center",
+          "justify": "center",
+          "style": {
+            "padding": "16px"
+          }
+        },
+        "type": "ia.container.flex",
+        "children": [
+          {
+            "meta": {
+              "name": "LevelDisplay"
+            },
+            "propConfig": {
+              "text": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "format('{' + {view.params.tankPath} + '/Level}', '.1f') + '%'"
+                  }
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "value-large",
+                "fontSize": "48px"
+              }
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "TankLevel"
+            },
+            "propConfig": {
+              "value": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "'{' + {view.params.tankPath} + '/Level}'"
+                  }
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "width": "300px",
+                "height": "100px"
+              }
+            },
+            "type": "ia.display.tank"
+          }
+        ]
+      },
+      {
+        "meta": {
+          "name": "SetpointEditors"
+        },
+        "position": {
+          "basis": "200px"
+        },
+        "props": {
+          "style": {
+            "classes": "card",
+            "margin": "16px",
+            "padding": "16px"
+          }
+        },
+        "type": "ia.container.flex",
+        "children": [
+          {
+            "meta": {
+              "name": "LowSP"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "justify": "space-between",
+              "style": {
+                "padding": "8px"
+              }
+            },
+            "type": "ia.container.flex",
+            "children": [
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "text": "Low Setpoint:",
+                  "style": {
+                    "classes": "label-secondary"
+                  }
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Input"
+                },
+                "propConfig": {
+                  "value": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "'{' + {view.params.tankPath} + '/LowSP}'",
+                        "bidirectional": true
+                      }
+                    }
+                  }
+                },
+                "props": {
+                  "format": "0.0",
+                  "style": {
+                    "width": "100px"
+                  }
+                },
+                "type": "ia.input.numericentry"
+              }
+            ]
+          },
+          {
+            "meta": {
+              "name": "HighSP"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "justify": "space-between",
+              "style": {
+                "padding": "8px"
+              }
+            },
+            "type": "ia.container.flex",
+            "children": [
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "text": "High Setpoint:",
+                  "style": {
+                    "classes": "label-secondary"
+                  }
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Input"
+                },
+                "propConfig": {
+                  "value": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "'{' + {view.params.tankPath} + '/HighSP}'",
+                        "bidirectional": true
+                      }
+                    }
+                  }
+                },
+                "props": {
+                  "format": "0.0",
+                  "style": {
+                    "width": "100px"
+                  }
+                },
+                "type": "ia.input.numericentry"
+              }
+            ]
+          },
+          {
+            "meta": {
+              "name": "Priority"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "justify": "space-between",
+              "style": {
+                "padding": "8px"
+              }
+            },
+            "type": "ia.container.flex",
+            "children": [
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "text": "Priority:",
+                  "style": {
+                    "classes": "label-secondary"
+                  }
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Input"
+                },
+                "propConfig": {
+                  "value": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "'{' + {view.params.tankPath} + '/Priority}'",
+                        "bidirectional": true
+                      }
+                    }
+                  }
+                },
+                "props": {
+                  "min": 0,
+                  "max": 10,
+                  "style": {
+                    "width": "100px"
+                  }
+                },
+                "type": "ia.input.numericentry"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "meta": {
+          "name": "Actions"
+        },
+        "position": {
+          "basis": "60px"
+        },
+        "props": {
+          "direction": "row",
+          "justify": "flex-end",
+          "style": {
+            "padding": "16px",
+            "gap": "8px"
+          }
+        },
+        "type": "ia.container.flex",
+        "children": [
+          {
+            "meta": {
+              "name": "CloseBtn"
+            },
+            "events": {
+              "component": {
+                "onActionPerformed": [
+                  {
+                    "scope": "session",
+                    "script": "system.perspective.closePopup(self.view.id)"
+                  }
+                ]
+              }
+            },
+            "props": {
+              "text": "Close",
+              "style": {
+                "classes": "button-secondary"
+              }
+            },
+            "type": "ia.input.button"
+          }
+        ]
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "classes": "card",
+        "backgroundColor": "#1e293b"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}

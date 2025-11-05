@@ -1,0 +1,168 @@
+{
+  "classes": {
+    "text-xl": {
+      "fontSize": "20px"
+    },
+    "font-bold": {
+      "fontWeight": "bold"
+    },
+    "text-white": {
+      "color": "#ffffff"
+    },
+    "nav-button": {
+      "backgroundColor": "transparent",
+      "color": "#94a3b8",
+      "border": "none",
+      "padding": "8px 16px",
+      "cursor": "pointer",
+      "transition": "all 0.2s",
+      "fontSize": "14px",
+      "fontWeight": "500"
+    },
+    "nav-button:hover": {
+      "color": "#ffffff",
+      "backgroundColor": "rgba(59, 130, 246, 0.1)"
+    },
+    "screen-title": {
+      "fontSize": "28px",
+      "fontWeight": "bold",
+      "color": "#f1f5f9",
+      "padding": "16px",
+      "borderBottom": "1px solid #334155"
+    },
+    "card": {
+      "backgroundColor": "#1e293b",
+      "border": "1px solid #334155",
+      "borderRadius": "8px",
+      "padding": "16px",
+      "boxShadow": "0 4px 6px rgba(0,0,0,0.3)"
+    },
+    "card-title": {
+      "fontSize": "18px",
+      "fontWeight": "600",
+      "color": "#cbd5e1",
+      "marginBottom": "8px"
+    },
+    "tank-card": {
+      "transition": "transform 0.2s, box-shadow 0.2s"
+    },
+    "tank-card:hover": {
+      "transform": "translateY(-2px)",
+      "boxShadow": "0 6px 12px rgba(0,0,0,0.4)"
+    },
+    "status-card": {
+      "textAlign": "center"
+    },
+    "badge-success": {
+      "backgroundColor": "#10b981",
+      "color": "#ffffff",
+      "padding": "4px 12px",
+      "borderRadius": "12px",
+      "fontSize": "12px",
+      "fontWeight": "600",
+      "display": "inline-block"
+    },
+    "badge-warning": {
+      "backgroundColor": "#f59e0b",
+      "color": "#ffffff",
+      "padding": "4px 12px",
+      "borderRadius": "12px",
+      "fontSize": "12px",
+      "fontWeight": "600",
+      "display": "inline-block"
+    },
+    "badge-critical": {
+      "backgroundColor": "#ef4444",
+      "color": "#ffffff",
+      "padding": "4px 12px",
+      "borderRadius": "12px",
+      "fontSize": "12px",
+      "fontWeight": "600",
+      "display": "inline-block"
+    },
+    "label-primary": {
+      "color": "#f1f5f9",
+      "fontSize": "14px",
+      "fontWeight": "500"
+    },
+    "label-secondary": {
+      "color": "#94a3b8",
+      "fontSize": "14px"
+    },
+    "label-muted": {
+      "color": "#64748b",
+      "fontSize": "12px"
+    },
+    "value-display": {
+      "color": "#3b82f6",
+      "fontSize": "16px",
+      "fontWeight": "600"
+    },
+    "value-large": {
+      "color": "#60a5fa",
+      "fontSize": "32px",
+      "fontWeight": "700"
+    },
+    "button-primary": {
+      "backgroundColor": "#3b82f6",
+      "color": "#ffffff",
+      "border": "none",
+      "padding": "10px 20px",
+      "borderRadius": "6px",
+      "cursor": "pointer",
+      "fontWeight": "600",
+      "transition": "all 0.2s"
+    },
+    "button-primary:hover": {
+      "backgroundColor": "#2563eb",
+      "transform": "scale(1.02)"
+    },
+    "button-secondary": {
+      "backgroundColor": "#64748b",
+      "color": "#ffffff",
+      "border": "none",
+      "padding": "10px 20px",
+      "borderRadius": "6px",
+      "cursor": "pointer",
+      "fontWeight": "600",
+      "transition": "all 0.2s"
+    },
+    "button-secondary:hover": {
+      "backgroundColor": "#475569"
+    },
+    "button-success": {
+      "backgroundColor": "#10b981",
+      "color": "#ffffff",
+      "border": "none",
+      "padding": "12px 24px",
+      "borderRadius": "6px",
+      "cursor": "pointer",
+      "fontWeight": "700",
+      "transition": "all 0.2s"
+    },
+    "button-success:hover": {
+      "backgroundColor": "#059669",
+      "boxShadow": "0 0 12px rgba(16, 185, 129, 0.5)"
+    },
+    "button-critical": {
+      "backgroundColor": "#ef4444",
+      "color": "#ffffff",
+      "border": "none",
+      "padding": "12px 24px",
+      "borderRadius": "6px",
+      "cursor": "pointer",
+      "fontWeight": "700",
+      "transition": "all 0.2s"
+    },
+    "button-critical:hover": {
+      "backgroundColor": "#dc2626",
+      "boxShadow": "0 0 12px rgba(239, 68, 68, 0.5)"
+    },
+    "popup-title": {
+      "fontSize": "24px",
+      "fontWeight": "bold",
+      "color": "#f1f5f9",
+      "borderBottom": "2px solid #3b82f6"
+    }
+  }
+}

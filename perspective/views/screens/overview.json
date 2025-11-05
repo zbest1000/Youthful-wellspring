@@ -1,0 +1,206 @@
+{
+  "custom": {},
+  "params": {},
+  "propConfig": {},
+  "props": {
+    "defaultSize": {
+      "height": 1000,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Title"
+        },
+        "position": {
+          "basis": "60px"
+        },
+        "props": {
+          "text": "System Overview",
+          "style": {
+            "classes": "screen-title"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "StatusCards"
+        },
+        "position": {
+          "basis": "200px"
+        },
+        "props": {
+          "direction": "row",
+          "style": {
+            "gap": "16px",
+            "padding": "16px"
+          }
+        },
+        "type": "ia.container.flex",
+        "children": [
+          {
+            "meta": {
+              "name": "PumpStatusCard"
+            },
+            "position": {
+              "grow": 1
+            },
+            "props": {
+              "path": "YouthfulWellspring/components/StatusCard",
+              "params": {
+                "title": "Pump Status",
+                "tagPath": "[default]YW_Demo/Pump",
+                "valueKey": "Running",
+                "icon": "pump"
+              }
+            },
+            "type": "ia.container.view"
+          },
+          {
+            "meta": {
+              "name": "ModeCard"
+            },
+            "position": {
+              "grow": 1
+            },
+            "props": {
+              "path": "YouthfulWellspring/components/StatusCard",
+              "params": {
+                "title": "Mode",
+                "tagPath": "[default]YW_Demo/Mode",
+                "valueKey": "Selector",
+                "icon": "settings"
+              }
+            },
+            "type": "ia.container.view"
+          },
+          {
+            "meta": {
+              "name": "BackwashCard"
+            },
+            "position": {
+              "grow": 1
+            },
+            "props": {
+              "path": "YouthfulWellspring/components/StatusCard",
+              "params": {
+                "title": "Backwash",
+                "tagPath": "[default]YW_Demo/Backwash",
+                "valueKey": "Step",
+                "icon": "water"
+              }
+            },
+            "type": "ia.container.view"
+          },
+          {
+            "meta": {
+              "name": "DemandCard"
+            },
+            "position": {
+              "grow": 1
+            },
+            "props": {
+              "path": "YouthfulWellspring/components/StatusCard",
+              "params": {
+                "title": "System Demand",
+                "tagPath": "[default]YW_Demo/System",
+                "valueKey": "AnyDemand",
+                "icon": "alert"
+              }
+            },
+            "type": "ia.container.view"
+          }
+        ]
+      },
+      {
+        "meta": {
+          "name": "TankGrid"
+        },
+        "position": {
+          "grow": 1
+        },
+        "props": {
+          "direction": "row",
+          "wrap": "wrap",
+          "style": {
+            "gap": "16px",
+            "padding": "16px"
+          }
+        },
+        "type": "ia.container.flex",
+        "children": [
+          {
+            "meta": {
+              "name": "Tank_A"
+            },
+            "position": {
+              "basis": "calc(50% - 8px)"
+            },
+            "props": {
+              "path": "YouthfulWellspring/components/TankCard",
+              "params": {
+                "tankPath": "[default]YW_Demo/Tanks/Tank_A"
+              }
+            },
+            "type": "ia.container.view"
+          },
+          {
+            "meta": {
+              "name": "Tank_B"
+            },
+            "position": {
+              "basis": "calc(50% - 8px)"
+            },
+            "props": {
+              "path": "YouthfulWellspring/components/TankCard",
+              "params": {
+                "tankPath": "[default]YW_Demo/Tanks/Tank_B"
+              }
+            },
+            "type": "ia.container.view"
+          },
+          {
+            "meta": {
+              "name": "Tank_C"
+            },
+            "position": {
+              "basis": "calc(50% - 8px)"
+            },
+            "props": {
+              "path": "YouthfulWellspring/components/TankCard",
+              "params": {
+                "tankPath": "[default]YW_Demo/Tanks/Tank_C"
+              }
+            },
+            "type": "ia.container.view"
+          },
+          {
+            "meta": {
+              "name": "Tank_D"
+            },
+            "position": {
+              "basis": "calc(50% - 8px)"
+            },
+            "props": {
+              "path": "YouthfulWellspring/components/TankCard",
+              "params": {
+                "tankPath": "[default]YW_Demo/Tanks/Tank_D"
+              }
+            },
+            "type": "ia.container.view"
+          }
+        ]
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "custom": {},
+  "params": {
+    "title": {
+      "dataType": "String",
+      "value": "Status"
+    },
+    "tagPath": {
+      "dataType": "String",
+      "value": "[default]YW_Demo/System"
+    },
+    "valueKey": {
+      "dataType": "String",
+      "value": "Initialized"
+    },
+    "icon": {
+      "dataType": "String",
+      "value": "info"
+    }
+  },
+  "propConfig": {},
+  "props": {},
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Title"
+        },
+        "position": {
+          "basis": "40px"
+        },
+        "propConfig": {
+          "text": {
+            "binding": {
+              "type": "property",
+              "config": {
+                "path": "view.params.title"
+              }
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "card-title"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "ValueDisplay"
+        },
+        "position": {
+          "grow": 1
+        },
+        "propConfig": {
+          "text": {
+            "binding": {
+              "type": "expr",
+              "config": {
+                "expression": "toString('{' + {view.params.tagPath} + '/' + {view.params.valueKey} + '}'})"
+              }
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "value-large",
+            "textAlign": "center",
+            "fontSize": "24px"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "classes": "card status-card",
+        "minHeight": "140px"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}

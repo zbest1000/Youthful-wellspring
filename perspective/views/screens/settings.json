@@ -1,0 +1,167 @@
+{
+  "custom": {},
+  "params": {},
+  "propConfig": {},
+  "props": {},
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Title"
+        },
+        "position": {
+          "basis": "60px"
+        },
+        "props": {
+          "text": "Settings",
+          "style": {
+            "classes": "screen-title"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "SettingsPanel"
+        },
+        "position": {
+          "basis": "500px"
+        },
+        "props": {
+          "style": {
+            "classes": "card",
+            "margin": "16px",
+            "padding": "24px"
+          }
+        },
+        "type": "ia.container.flex",
+        "children": [
+          {
+            "meta": {
+              "name": "UserInfo"
+            },
+            "props": {
+              "text": "👤 Current User: Operator",
+              "style": {
+                "classes": "label-primary",
+                "fontSize": "18px",
+                "marginBottom": "24px"
+              }
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "ThemeToggle"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "justify": "space-between",
+              "style": {
+                "padding": "12px"
+              }
+            },
+            "type": "ia.container.flex",
+            "children": [
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "text": "Theme:",
+                  "style": {
+                    "classes": "label-secondary"
+                  }
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "ThemeOptions"
+                },
+                "props": {
+                  "options": [
+                    {"value": "dark", "label": "Dark (Default)"},
+                    {"value": "light", "label": "Light"}
+                  ],
+                  "style": {
+                    "minWidth": "200px"
+                  }
+                },
+                "type": "ia.input.dropdown"
+              }
+            ]
+          },
+          {
+            "meta": {
+              "name": "SimulationToggle"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "justify": "space-between",
+              "style": {
+                "padding": "12px"
+              }
+            },
+            "type": "ia.container.flex",
+            "children": [
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "text": "Simulation Mode:",
+                  "style": {
+                    "classes": "label-secondary"
+                  }
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "SimToggle"
+                },
+                "propConfig": {
+                  "selected": {
+                    "binding": {
+                      "type": "tag",
+                      "config": {
+                        "tagPath": "[default]YW_Demo/System/SimulationActive",
+                        "bidirectional": true
+                      }
+                    }
+                  }
+                },
+                "props": {},
+                "type": "ia.input.toggle"
+              }
+            ]
+          },
+          {
+            "meta": {
+              "name": "InfoText"
+            },
+            "props": {
+              "text": "💡 Disable simulation when connected to a real PLC",
+              "style": {
+                "classes": "label-muted",
+                "fontSize": "12px",
+                "marginTop": "24px"
+              }
+            },
+            "type": "ia.display.label"
+          }
+        ]
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}

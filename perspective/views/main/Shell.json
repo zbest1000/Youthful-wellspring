@@ -1,0 +1,298 @@
+{
+  "custom": {},
+  "params": {},
+  "propConfig": {},
+  "props": {
+    "defaultSize": {
+      "height": 1080,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "HeaderBar"
+        },
+        "position": {
+          "basis": "60px"
+        },
+        "propConfig": {},
+        "props": {
+          "style": {
+            "backgroundColor": "#1a1f2e",
+            "borderBottom": "2px solid #2563eb"
+          }
+        },
+        "type": "ia.container.flex"
+        },
+        "children": [
+          {
+            "meta": {
+              "name": "Logo"
+            },
+            "position": {
+              "basis": "200px"
+            },
+            "props": {
+              "text": "Youthful Wellspring",
+              "style": {
+                "classes": "text-xl font-bold text-white",
+                "paddingLeft": "20px"
+              }
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "NavButtons"
+            },
+            "position": {
+              "grow": 1
+            },
+            "propConfig": {},
+            "props": {
+              "direction": "row",
+              "justify": "flex-start",
+              "alignItems": "center",
+              "style": {
+                "gap": "8px",
+                "paddingLeft": "20px"
+              }
+            },
+            "type": "ia.container.flex",
+            "children": [
+              {
+                "meta": {
+                  "name": "OverviewBtn"
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": [
+                      {
+                        "scope": "page",
+                        "script": "self.parent.parent.parent.custom.currentScreen = 'overview'"
+                      }
+                    ]
+                  }
+                },
+                "props": {
+                  "text": "Overview",
+                  "style": {
+                    "classes": "nav-button"
+                  }
+                },
+                "type": "ia.input.button"
+              },
+              {
+                "meta": {
+                  "name": "PumpBtn"
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": [
+                      {
+                        "scope": "page",
+                        "script": "self.parent.parent.parent.custom.currentScreen = 'pump'"
+                      }
+                    ]
+                  }
+                },
+                "props": {
+                  "text": "Pump Control",
+                  "style": {
+                    "classes": "nav-button"
+                  }
+                },
+                "type": "ia.input.button"
+              },
+              {
+                "meta": {
+                  "name": "AlarmsBtn"
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": [
+                      {
+                        "scope": "page",
+                        "script": "self.parent.parent.parent.custom.currentScreen = 'alarms'"
+                      }
+                    ]
+                  }
+                },
+                "props": {
+                  "text": "Alarms",
+                  "style": {
+                    "classes": "nav-button"
+                  }
+                },
+                "type": "ia.input.button"
+              },
+              {
+                "meta": {
+                  "name": "TrendsBtn"
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": [
+                      {
+                        "scope": "page",
+                        "script": "self.parent.parent.parent.custom.currentScreen = 'trends'"
+                      }
+                    ]
+                  }
+                },
+                "props": {
+                  "text": "Trends",
+                  "style": {
+                    "classes": "nav-button"
+                  }
+                },
+                "type": "ia.input.button"
+              },
+              {
+                "meta": {
+                  "name": "DiagnosticsBtn"
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": [
+                      {
+                        "scope": "page",
+                        "script": "self.parent.parent.parent.custom.currentScreen = 'diagnostics'"
+                      }
+                    ]
+                  }
+                },
+                "props": {
+                  "text": "Diagnostics",
+                  "style": {
+                    "classes": "nav-button"
+                  }
+                },
+                "type": "ia.input.button"
+              },
+              {
+                "meta": {
+                  "name": "ConfigBtn"
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": [
+                      {
+                        "scope": "page",
+                        "script": "self.parent.parent.parent.custom.currentScreen = 'config'"
+                      }
+                    ]
+                  }
+                },
+                "props": {
+                  "text": "Config",
+                  "style": {
+                    "classes": "nav-button"
+                  }
+                },
+                "type": "ia.input.button"
+              },
+              {
+                "meta": {
+                  "name": "SettingsBtn"
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": [
+                      {
+                        "scope": "page",
+                        "script": "self.parent.parent.parent.custom.currentScreen = 'settings'"
+                      }
+                    ]
+                  }
+                },
+                "props": {
+                  "text": "Settings",
+                  "style": {
+                    "classes": "nav-button"
+                  }
+                },
+                "type": "ia.input.button"
+              }
+            ]
+          },
+          {
+            "meta": {
+              "name": "AlarmIndicator"
+            },
+            "position": {
+              "basis": "150px"
+            },
+            "propConfig": {
+              "text": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "'🔔 ' + {[default]YW_Demo/System/ActiveAlarmCount} + ' Alarms'"
+                  }
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "badge-critical",
+                "textAlign": "center"
+              }
+            },
+            "type": "ia.display.label"
+          }
+        ]
+      },
+      {
+        "meta": {
+          "name": "ContentArea"
+        },
+        "position": {
+          "grow": 1
+        },
+        "propConfig": {},
+        "props": {
+          "style": {
+            "backgroundColor": "#0f172a"
+          }
+        },
+        "type": "ia.container.flex",
+        "children": [
+          {
+            "meta": {
+              "name": "ViewLoader"
+            },
+            "propConfig": {
+              "path": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "'YouthfulWellspring/screens/' + {view.custom.currentScreen}"
+                  }
+                }
+              }
+            },
+            "props": {},
+            "type": "ia.container.view"
+          }
+        ]
+      }
+    ],
+    "custom": {
+      "currentScreen": "overview"
+    },
+    "meta": {
+      "name": "root"
+    },
+    "propConfig": {},
+    "props": {
+      "direction": "column",
+      "style": {
+        "backgroundColor": "#0f172a"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}

@@ -1,0 +1,251 @@
+{
+  "name": "YouthfulWellspringUDTs",
+  "tagType": "UdtType",
+  "tags": [
+    {
+      "name": "YW_Tank",
+      "tagType": "UdtType",
+      "tags": [
+        {
+          "name": "Name",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "String",
+          "value": ""
+        },
+        {
+          "name": "Level",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Float8",
+          "value": 50.0,
+          "engUnit": "%",
+          "tooltip": "Current tank level percentage"
+        },
+        {
+          "name": "LowSP",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Float8",
+          "value": 20.0,
+          "engUnit": "%"
+        },
+        {
+          "name": "HighSP",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Float8",
+          "value": 80.0,
+          "engUnit": "%"
+        },
+        {
+          "name": "Priority",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Int4",
+          "value": 0,
+          "tooltip": "Tank filling priority (0=highest)"
+        },
+        {
+          "name": "InletValve",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false
+        },
+        {
+          "name": "OutletValve",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false
+        },
+        {
+          "name": "Enabled",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": true
+        },
+        {
+          "name": "FaultIsolation",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false
+        },
+        {
+          "name": "Demand",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "True when tank needs filling (level < LowSP)"
+        }
+      ]
+    },
+    {
+      "name": "YW_Pump",
+      "tagType": "UdtType",
+      "tags": [
+        {
+          "name": "Running",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false
+        },
+        {
+          "name": "Command",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false
+        },
+        {
+          "name": "Fault",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false
+        },
+        {
+          "name": "Mode",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "String",
+          "value": "Auto"
+        },
+        {
+          "name": "StartPermissive",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": true
+        },
+        {
+          "name": "RunHours",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Float8",
+          "value": 0.0,
+          "engUnit": "hours"
+        },
+        {
+          "name": "LastStartTime",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "DateTime",
+          "value": null
+        }
+      ]
+    },
+    {
+      "name": "YW_Mode",
+      "tagType": "UdtType",
+      "tags": [
+        {
+          "name": "Selector",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "String",
+          "value": "Auto",
+          "tooltip": "Auto | Manual"
+        },
+        {
+          "name": "FaultAction",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "String",
+          "value": "Continue",
+          "tooltip": "Continue | Stop"
+        }
+      ]
+    },
+    {
+      "name": "YW_Backwash",
+      "tagType": "UdtType",
+      "tags": [
+        {
+          "name": "InProgress",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false
+        },
+        {
+          "name": "Step",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "String",
+          "value": "Idle"
+        },
+        {
+          "name": "Progress",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Float8",
+          "value": 0.0,
+          "engUnit": "%"
+        },
+        {
+          "name": "Command",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "Write true to start backwash"
+        },
+        {
+          "name": "LastRun",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "DateTime",
+          "value": null
+        }
+      ]
+    },
+    {
+      "name": "YW_System",
+      "tagType": "UdtType",
+      "tags": [
+        {
+          "name": "Initialized",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false
+        },
+        {
+          "name": "SimulationActive",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": true
+        },
+        {
+          "name": "AnyDemand",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "True if any enabled tank has demand"
+        },
+        {
+          "name": "ActiveAlarmCount",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Int4",
+          "value": 0
+        },
+        {
+          "name": "LastUpdate",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "DateTime",
+          "value": null
+        }
+      ]
+    }
+  ]
+}

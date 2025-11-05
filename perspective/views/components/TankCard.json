@@ -1,0 +1,227 @@
+{
+  "custom": {},
+  "params": {
+    "tankPath": {
+      "dataType": "String",
+      "value": "[default]YW_Demo/Tanks/Tank_A"
+    }
+  },
+  "propConfig": {},
+  "props": {},
+  "root": {
+    "events": {
+      "component": {
+        "onActionPerformed": [
+          {
+            "scope": "session",
+            "script": "system.perspective.openPopup('TankFaceplate', {'tankPath': self.view.params.tankPath})"
+          }
+        ]
+      }
+    },
+    "children": [
+      {
+        "meta": {
+          "name": "Header"
+        },
+        "position": {
+          "basis": "40px"
+        },
+        "propConfig": {
+          "text": {
+            "binding": {
+              "type": "expr",
+              "config": {
+                "expression": "'{' + {view.params.tankPath} + '/Name}'"
+              }
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "card-title"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Body"
+        },
+        "position": {
+          "grow": 1
+        },
+        "props": {
+          "direction": "row",
+          "style": {
+            "gap": "16px"
+          }
+        },
+        "type": "ia.container.flex",
+        "children": [
+          {
+            "meta": {
+              "name": "TankVisual"
+            },
+            "position": {
+              "basis": "120px"
+            },
+            "propConfig": {
+              "value": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "'{' + {view.params.tankPath} + '/Level}'"
+                  }
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "width": "100%",
+                "height": "200px"
+              }
+            },
+            "type": "ia.display.tank"
+          },
+          {
+            "meta": {
+              "name": "Details"
+            },
+            "position": {
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "justify": "space-around"
+            },
+            "type": "ia.container.flex",
+            "children": [
+              {
+                "meta": {
+                  "name": "Level"
+                },
+                "propConfig": {
+                  "text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "'Level: ' + format('{' + {view.params.tankPath} + '/Level}', '.1f') + '%'"
+                      }
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "value-display"
+                  }
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "LowSP"
+                },
+                "propConfig": {
+                  "text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "'Low SP: ' + format('{' + {view.params.tankPath} + '/LowSP}', '.0f') + '%'"
+                      }
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "label-secondary"
+                  }
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "HighSP"
+                },
+                "propConfig": {
+                  "text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "'High SP: ' + format('{' + {view.params.tankPath} + '/HighSP}', '.0f') + '%'"
+                      }
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "label-secondary"
+                  }
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Status"
+                },
+                "propConfig": {
+                  "text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if('{' + {view.params.tankPath} + '/Demand}', '🔽 DEMAND', '✓ OK')"
+                      }
+                    }
+                  },
+                  "style": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if('{' + {view.params.tankPath} + '/Demand}', {'classes': 'badge-warning'}, {'classes': 'badge-success'})"
+                      }
+                    }
+                  }
+                },
+                "props": {},
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "ValveStatus"
+                },
+                "propConfig": {
+                  "text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "(if('{' + {view.params.tankPath} + '/InletValve}', '🔵 IN', '⚫ IN')) + ' ' + (if('{' + {view.params.tankPath} + '/OutletValve}', '🔵 OUT', '⚫ OUT'))"
+                      }
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "label-muted"
+                  }
+                },
+                "type": "ia.display.label"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "classes": "card tank-card",
+        "minHeight": "280px",
+        "cursor": "pointer"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}
