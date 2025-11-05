@@ -84,7 +84,7 @@ The UDT structure is designed to mirror Click PLC (AutomationDirect) memory orga
 | **`Tanks/Tank_1/ValveOutput`** | **Y002** | **00002** | **Coil** | Bool | R | **Valve output** |
 | `Tanks/Tank_1/SensorOpen` | C200 | 00200 | Coil | Bool | R | Sensor fault |
 
-### Tank 2-4 Modbus Addresses
+### Tank 2-8 Modbus Addresses
 
 | Tank | LevelPct (DF) | LowSP (DS) | HighSP (DS) | Priority (DS) | Enabled (C) | FillReq (C) | ValveCmd (C) | ValveOutput (Y) |
 |------|---------------|------------|-------------|---------------|-------------|-------------|--------------|-----------------|
@@ -92,6 +92,10 @@ The UDT structure is designed to mirror Click PLC (AutomationDirect) memory orga
 | **Tank_2** | 400003-400004 | 401210 | 401211 | 401212 | 00104 | 00141 | 00162 | 00003 |
 | **Tank_3** | 400005-400006 | 401220 | 401221 | 401222 | 00108 | 00142 | 00163 | 00004 |
 | **Tank_4** | 400007-400008 | 401230 | 401231 | 401232 | 00112 | 00143 | 00164 | 00005 |
+| **Tank_5** | 400009-400010 | 401240 | 401241 | 401242 | 00116 | 00144 | 00165 | 00006 |
+| **Tank_6** | 400011-400012 | 401250 | 401251 | 401252 | 00120 | 00145 | 00166 | 00007 |
+| **Tank_7** | 400013-400014 | 401260 | 401261 | 401262 | 00124 | 00146 | 00167 | 00008 |
+| **Tank_8** | 400015-400016 | 401270 | 401271 | 401272 | 00128 | 00147 | 00168 | 00009 |
 
 ---
 
@@ -184,10 +188,14 @@ Using SCALE instruction:
   Output: DF1
 ```
 
-Repeat for Tank 2-4:
+Repeat for Tank 2-8 (as configured):
 - X002 → DF2
 - X003 → DF3
 - X004 → DF4
+- X005 → DF5 (if Tank 5 enabled)
+- X006 → DF6 (if Tank 6 enabled)
+- X007 → DF7 (if Tank 7 enabled)
+- X008 → DF8 (if Tank 8 enabled)
 
 ### Modbus TCP Configuration in Click PLC
 
@@ -235,6 +243,10 @@ Repeat for Tank 2-4:
 - X002: Tank 2 Level Sensor
 - X003: Tank 3 Level Sensor
 - X004: Tank 4 Level Sensor
+- X005: Tank 5 Level Sensor (optional)
+- X006: Tank 6 Level Sensor (optional)
+- X007: Tank 7 Level Sensor (optional)
+- X008: Tank 8 Level Sensor (optional)
 
 **Digital Inputs:**
 - X001: E-Stop (NC contact)
@@ -250,6 +262,10 @@ Repeat for Tank 2-4:
 - Y003: Tank 2 Inlet Valve
 - Y004: Tank 3 Inlet Valve
 - Y005: Tank 4 Inlet Valve
+- Y006: Tank 5 Inlet Valve (optional)
+- Y007: Tank 6 Inlet Valve (optional)
+- Y008: Tank 7 Inlet Valve (optional)
+- Y009: Tank 8 Inlet Valve (optional)
 - Y010: Backwash Valve
 
 ---

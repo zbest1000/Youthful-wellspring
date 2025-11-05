@@ -10,7 +10,7 @@ A complete Ignition 8.3 Perspective SCADA project for water tank management, con
 
 **Youthful Wellspring** is a production-ready water distribution control system featuring:
 
-- **4 Water Storage Tanks** with individual level monitoring and control
+- **Configurable 1-8 Water Storage Tanks** with individual level monitoring and control
 - **Priority-based valve arbitration** for automated filling
 - **Pump control** with Auto/Manual modes and Anti-Short-Cycle protection
 - **Backwash sequence automation** with multi-step workflow
@@ -27,7 +27,7 @@ A complete Ignition 8.3 Perspective SCADA project for water tank management, con
 /workspace/
 ├── tags/
 │   ├── YouthfulWellspringUDTs.json         # UDT definitions for Tank, Pump, Mode, Backwash, System
-│   └── YouthfulWellspringSimInstances.json # Demo tag instances (4 tanks + system tags)
+│   └── YouthfulWellspringSimInstances.json # Demo tag instances (8 tanks + system tags, configurable 1-8)
 ├── perspective/
 │   ├── views/
 │   │   ├── main/
@@ -366,9 +366,20 @@ To restrict access:
    visible: system.security.isScreenLocked() == False
    ```
 
+### Tank Count Configuration
+
+The system supports 1-8 tanks dynamically:
+
+1. **Set tank count:** Edit `[default]YW_Demo/Config/TankCount` (1-8, default 4)
+2. **Enable tanks:** Set `Enabled = true` for tanks 1 through N
+3. **Disable unused tanks:** Set `Enabled = false` for tanks N+1 through 8
+4. **Configure priorities:** Assign unique priorities (1=highest)
+
+See **[TANK_CONFIGURATION.md](docs/TANK_CONFIGURATION.md)** for complete guide.
+
 ### Customization
 
-- **Add more tanks:** Clone `Tank_A` tag instance, adjust priority
+- **Change tank count:** Edit `Config/TankCount` tag (1-8 tanks supported)
 - **Change colors:** Edit `perspective/style/style.json` color variables
 - **Add screens:** Follow the pattern in existing screen views
 - **Extend simulation:** Modify `yw_sim.py` functions (e.g., add leak detection)
@@ -450,6 +461,7 @@ Before connecting to a live PLC:
 
 ### Production Use
 - **[PLC_MAPPING.md](docs/PLC_MAPPING.md)** - 🏭 **Click PLC + Modbus TCP mapping guide** (complete register map, wiring, PLC programming)
+- **[TANK_CONFIGURATION.md](docs/TANK_CONFIGURATION.md)** - 🎛️ **Configure 1-8 tanks dynamically** (setup guide for variable tank count)
 - **[IMPORT.md](docs/IMPORT.md)** - Complete import instructions with Modbus device setup
 
 ### Reference
