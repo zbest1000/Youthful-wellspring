@@ -14,73 +14,158 @@
           "value": ""
         },
         {
-          "name": "Level",
+          "name": "CapacityLiters",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Int4",
+          "value": 5000,
+          "engUnit": "L"
+        },
+        {
+          "name": "Contents",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "String",
+          "value": "Potable Water"
+        },
+        {
+          "name": "LevelPct",
           "tagType": "AtomicTag",
           "valueSource": "memory",
           "dataType": "Float8",
           "value": 50.0,
           "engUnit": "%",
-          "tooltip": "Current tank level percentage"
+          "tooltip": "Current tank level percentage (DF1-DF8)"
+        },
+        {
+          "name": "LevelX10",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Int4",
+          "value": 500,
+          "tooltip": "Level * 10 (0-1000 for HMI)"
         },
         {
           "name": "LowSP",
           "tagType": "AtomicTag",
           "valueSource": "memory",
           "dataType": "Float8",
-          "value": 20.0,
-          "engUnit": "%"
+          "value": 40.0,
+          "engUnit": "%",
+          "tooltip": "DS12x0"
         },
         {
           "name": "HighSP",
           "tagType": "AtomicTag",
           "valueSource": "memory",
           "dataType": "Float8",
-          "value": 80.0,
-          "engUnit": "%"
+          "value": 95.0,
+          "engUnit": "%",
+          "tooltip": "DS12x1"
         },
         {
           "name": "Priority",
           "tagType": "AtomicTag",
           "valueSource": "memory",
           "dataType": "Int4",
-          "value": 0,
-          "tooltip": "Tank filling priority (0=highest)"
-        },
-        {
-          "name": "InletValve",
-          "tagType": "AtomicTag",
-          "valueSource": "memory",
-          "dataType": "Boolean",
-          "value": false
-        },
-        {
-          "name": "OutletValve",
-          "tagType": "AtomicTag",
-          "valueSource": "memory",
-          "dataType": "Boolean",
-          "value": false
+          "value": 1,
+          "tooltip": "Tank filling priority (1-8, 1=highest, DS12x2)"
         },
         {
           "name": "Enabled",
           "tagType": "AtomicTag",
           "valueSource": "memory",
           "dataType": "Boolean",
-          "value": true
+          "value": true,
+          "tooltip": "Global enable (C100+)"
         },
         {
-          "name": "FaultIsolation",
+          "name": "AutoEnable",
           "tagType": "AtomicTag",
           "valueSource": "memory",
           "dataType": "Boolean",
-          "value": false
+          "value": true,
+          "tooltip": "AUTO_en_TKx"
         },
         {
-          "name": "Demand",
+          "name": "ManEnable",
           "tagType": "AtomicTag",
           "valueSource": "memory",
           "dataType": "Boolean",
           "value": false,
-          "tooltip": "True when tank needs filling (level < LowSP)"
+          "tooltip": "MAN_en_TKx"
+        },
+        {
+          "name": "OOS",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "Out of Service (OOS_TKx)"
+        },
+        {
+          "name": "FillReq",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "Computed fill request (C140+)"
+        },
+        {
+          "name": "PreCmd",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "Pre-arbitration intent (C160+)"
+        },
+        {
+          "name": "ValveCmd",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "Winning valve command after arbitration"
+        },
+        {
+          "name": "ValveOutput",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "Actual output to valve (Y002-Y009)"
+        },
+        {
+          "name": "SensorOpen",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "Level sensor open fault <3.5mA (C20x)"
+        },
+        {
+          "name": "ValveHWPresent",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": true,
+          "tooltip": "Hardware present flag"
+        },
+        {
+          "name": "MinOpenTimer",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "Minimum open timer active (T20x)"
+        },
+        {
+          "name": "MinOpenPV",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Int4",
+          "value": 0,
+          "tooltip": "Minimum open timer PV (TD20x)"
         }
       ]
     },
@@ -89,54 +174,88 @@
       "tagType": "UdtType",
       "tags": [
         {
-          "name": "Running",
+          "name": "AnyDemand",
           "tagType": "AtomicTag",
           "valueSource": "memory",
           "dataType": "Boolean",
-          "value": false
+          "value": false,
+          "tooltip": "Any tank or backwash request"
         },
         {
-          "name": "Command",
+          "name": "PumpRequest",
           "tagType": "AtomicTag",
           "valueSource": "memory",
           "dataType": "Boolean",
-          "value": false
+          "value": false,
+          "tooltip": "Pump_Request (C60)"
         },
         {
-          "name": "Fault",
+          "name": "PumpRunning",
           "tagType": "AtomicTag",
           "valueSource": "memory",
           "dataType": "Boolean",
-          "value": false
+          "value": false,
+          "tooltip": "Pump_Run (Y001 mirror, C40)"
         },
         {
-          "name": "Mode",
-          "tagType": "AtomicTag",
-          "valueSource": "memory",
-          "dataType": "String",
-          "value": "Auto"
-        },
-        {
-          "name": "StartPermissive",
+          "name": "PumpAvailable",
           "tagType": "AtomicTag",
           "valueSource": "memory",
           "dataType": "Boolean",
-          "value": true
+          "value": true,
+          "tooltip": "Computed availability"
         },
         {
-          "name": "RunHours",
+          "name": "ASCMinOffTimer",
           "tagType": "AtomicTag",
           "valueSource": "memory",
-          "dataType": "Float8",
-          "value": 0.0,
-          "engUnit": "hours"
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "Anti-Short-Cycle Min-OFF Timer Active (T2)"
         },
         {
-          "name": "LastStartTime",
+          "name": "ASCMinOffPV",
           "tagType": "AtomicTag",
           "valueSource": "memory",
-          "dataType": "DateTime",
-          "value": null
+          "dataType": "Int4",
+          "value": 0,
+          "engUnit": "s",
+          "tooltip": "Min-OFF Timer Present Value (TD2)"
+        },
+        {
+          "name": "ASCMinRunTimer",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "Anti-Short-Cycle Min-RUN Timer Active (T1)"
+        },
+        {
+          "name": "ASCMinRunPV",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Int4",
+          "value": 0,
+          "engUnit": "s",
+          "tooltip": "Min-RUN Timer Present Value (TD1)"
+        },
+        {
+          "name": "ASCMinOffSetting",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Int4",
+          "value": 15,
+          "engUnit": "s",
+          "tooltip": "Min-OFF Duration Setting (DS101)"
+        },
+        {
+          "name": "ASCMinRunSetting",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Int4",
+          "value": 10,
+          "engUnit": "s",
+          "tooltip": "Min-RUN Duration Setting (DS102)"
         }
       ]
     },
@@ -145,20 +264,68 @@
       "tagType": "UdtType",
       "tags": [
         {
-          "name": "Selector",
+          "name": "AutoSelected",
           "tagType": "AtomicTag",
           "valueSource": "memory",
-          "dataType": "String",
-          "value": "Auto",
-          "tooltip": "Auto | Manual"
+          "dataType": "Boolean",
+          "value": true,
+          "tooltip": "AUTO_SELECTED (X021)"
         },
         {
-          "name": "FaultAction",
+          "name": "ManualSelected",
           "tagType": "AtomicTag",
           "valueSource": "memory",
-          "dataType": "String",
-          "value": "Continue",
-          "tooltip": "Continue | Stop"
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "MANUAL_SELECTED (X022)"
+        },
+        {
+          "name": "SystemStopped",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "SYSTEM_STOPPED (X023)"
+        },
+        {
+          "name": "EStop",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "EStop_DI (X001)"
+        },
+        {
+          "name": "PressureFault",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "PressureFault_DI (X002)"
+        },
+        {
+          "name": "FlowFault",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "FlowFault_DI (X003)"
+        },
+        {
+          "name": "EffectiveFault",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "Computed effective fault"
+        },
+        {
+          "name": "BypassPFFault",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "Bypass Pressure/Flow Fault (C20 - HMI toggle)"
         }
       ]
     },
@@ -167,41 +334,89 @@
       "tagType": "UdtType",
       "tags": [
         {
-          "name": "InProgress",
-          "tagType": "AtomicTag",
-          "valueSource": "memory",
-          "dataType": "Boolean",
-          "value": false
-        },
-        {
-          "name": "Step",
-          "tagType": "AtomicTag",
-          "valueSource": "memory",
-          "dataType": "String",
-          "value": "Idle"
-        },
-        {
-          "name": "Progress",
-          "tagType": "AtomicTag",
-          "valueSource": "memory",
-          "dataType": "Float8",
-          "value": 0.0,
-          "engUnit": "%"
-        },
-        {
-          "name": "Command",
+          "name": "Start",
           "tagType": "AtomicTag",
           "valueSource": "memory",
           "dataType": "Boolean",
           "value": false,
-          "tooltip": "Write true to start backwash"
+          "tooltip": "Backwash_Start (HMI/X004)"
         },
         {
-          "name": "LastRun",
+          "name": "Active",
           "tagType": "AtomicTag",
           "valueSource": "memory",
-          "dataType": "DateTime",
-          "value": null
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "Backwash_Active (C31)"
+        },
+        {
+          "name": "Valve",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "Backwash_Valve (Y010)"
+        },
+        {
+          "name": "DurationSetting",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Int4",
+          "value": 120,
+          "engUnit": "s",
+          "tooltip": "Backwash duration (DS103)"
+        },
+        {
+          "name": "TimerPV",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Int4",
+          "value": 0,
+          "engUnit": "s",
+          "tooltip": "Timer present value (TD10)"
+        },
+        {
+          "name": "HWTrigger",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": false,
+          "tooltip": "Hardware trigger (X004 - physical switch)"
+        }
+      ]
+    },
+    {
+      "name": "YW_SystemConfig",
+      "tagType": "UdtType",
+      "tags": [
+        {
+          "name": "TankCount",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Int4",
+          "value": 4,
+          "tooltip": "User-configurable: 1-8 tanks"
+        },
+        {
+          "name": "SiteName",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "String",
+          "value": "Youthful Wellspring"
+        },
+        {
+          "name": "Location",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "String",
+          "value": ""
+        },
+        {
+          "name": "Initialized",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": true
         }
       ]
     },
@@ -210,11 +425,42 @@
       "tagType": "UdtType",
       "tags": [
         {
-          "name": "Initialized",
+          "name": "SolarPower",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Float8",
+          "value": 1250.0,
+          "engUnit": "W"
+        },
+        {
+          "name": "BatteryLevel",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Float8",
+          "value": 87.0,
+          "engUnit": "%"
+        },
+        {
+          "name": "PLCRunning",
           "tagType": "AtomicTag",
           "valueSource": "memory",
           "dataType": "Boolean",
-          "value": false
+          "value": true
+        },
+        {
+          "name": "ScanTime",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Float8",
+          "value": 2.4,
+          "engUnit": "ms"
+        },
+        {
+          "name": "CommStatus",
+          "tagType": "AtomicTag",
+          "valueSource": "memory",
+          "dataType": "Boolean",
+          "value": true
         },
         {
           "name": "SimulationActive",
@@ -222,21 +468,6 @@
           "valueSource": "memory",
           "dataType": "Boolean",
           "value": true
-        },
-        {
-          "name": "AnyDemand",
-          "tagType": "AtomicTag",
-          "valueSource": "memory",
-          "dataType": "Boolean",
-          "value": false,
-          "tooltip": "True if any enabled tank has demand"
-        },
-        {
-          "name": "ActiveAlarmCount",
-          "tagType": "AtomicTag",
-          "valueSource": "memory",
-          "dataType": "Int4",
-          "value": 0
         },
         {
           "name": "LastUpdate",

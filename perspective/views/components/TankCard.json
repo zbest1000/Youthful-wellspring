@@ -3,7 +3,7 @@
   "params": {
     "tankPath": {
       "dataType": "String",
-      "value": "[default]YW_Demo/Tanks/Tank_A"
+      "value": "[default]YW_Demo/Tanks/Tank_1"
     }
   },
   "propConfig": {},
@@ -71,7 +71,7 @@
                 "binding": {
                   "type": "expr",
                   "config": {
-                    "expression": "'{' + {view.params.tankPath} + '/Level}'"
+                    "expression": "'{' + {view.params.tankPath} + '/LevelPct}'"
                   }
                 }
               }
@@ -106,7 +106,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "'Level: ' + format('{' + {view.params.tankPath} + '/Level}', '.1f') + '%'"
+                        "expression": "'Level: ' + format('{' + {view.params.tankPath} + '/LevelPct}', '.1f') + '%'"
                       }
                     }
                   }
@@ -169,7 +169,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if('{' + {view.params.tankPath} + '/Demand}', '🔽 DEMAND', '✓ OK')"
+                        "expression": "if('{' + {view.params.tankPath} + '/FillReq}', '🔽 DEMAND', '✓ OK')"
                       }
                     }
                   },
@@ -177,7 +177,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if('{' + {view.params.tankPath} + '/Demand}', {'classes': 'badge-warning'}, {'classes': 'badge-success'})"
+                        "expression": "if('{' + {view.params.tankPath} + '/FillReq}', {'classes': 'badge-warning'}, {'classes': 'badge-success'})"
                       }
                     }
                   }
@@ -194,7 +194,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "(if('{' + {view.params.tankPath} + '/InletValve}', '🔵 IN', '⚫ IN')) + ' ' + (if('{' + {view.params.tankPath} + '/OutletValve}', '🔵 OUT', '⚫ OUT'))"
+                        "expression": "(if('{' + {view.params.tankPath} + '/ValveCmd}', '🔵 VALVE', '⚫ VALVE'))"
                       }
                     }
                   }

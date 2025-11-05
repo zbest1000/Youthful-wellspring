@@ -381,9 +381,18 @@ This project is provided as-is for educational and reference purposes. Modify an
 
 ---
 
+## 🔗 Source Alignment
+
+This Ignition project is a **verified conversion** of the React SPA:
+- **Source Repository**: [Ignitionyouthfulwellspringscadaproject](https://github.com/zbest1000/Ignitionyouthfulwellspringscadaproject)
+- **Alignment Document**: See [docs/REACT_ALIGNMENT.md](docs/REACT_ALIGNMENT.md) for detailed mapping
+- **Tag Structure**: UDTs precisely match React TypeScript interfaces (`src/types/plc.ts`)
+- **Simulation Logic**: Python script replicates `App.tsx` lines 100-195 exactly
+- **View Layouts**: Perspective views mirror React component structure
+
 ## 🙏 Acknowledgments
 
-- Original React SPA prototype: [Ignitionyouthfulwellspringscadaproject](https://github.com/zbest1000/Ignitionyouthfulwellspringscadaproject)
+- Original React SPA prototype: zbest1000
 - Design inspiration: Tailwind CSS, shadcn/ui
 - Built for: Ignition by Inductive Automation
 

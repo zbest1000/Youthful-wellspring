@@ -44,7 +44,7 @@
                 "binding": {
                   "type": "tag",
                   "config": {
-                    "tagPath": "[default]YW_Demo/Pump/Running",
+                    "tagPath": "[default]YW_Demo/Pump/PumpRunning",
                     "valueFormat": "value ? '🟢 RUNNING' : '🔴 STOPPED'"
                   }
                 }
@@ -53,7 +53,7 @@
                 "binding": {
                   "type": "tag",
                   "config": {
-                    "tagPath": "[default]YW_Demo/Pump/Running",
+                    "tagPath": "[default]YW_Demo/Pump/PumpRunning",
                     "transforms": [
                       {
                         "type": "script",
@@ -137,7 +137,7 @@
                 "binding": {
                   "type": "expr",
                   "config": {
-                    "expression": "{[default]YW_Demo/Pump/Mode} = 'Manual'"
+                    "expression": "{[default]YW_Demo/Mode/ManualSelected}"
                   }
                 }
               }
@@ -232,10 +232,9 @@
                 "propConfig": {
                   "text": {
                     "binding": {
-                      "type": "tag",
+                      "type": "expr",
                       "config": {
-                        "tagPath": "[default]YW_Demo/Pump/RunHours",
-                        "valueFormat": "%.1f hrs"
+                        "expression": "'N/A'"
                       }
                     }
                   }
@@ -266,10 +265,9 @@
                 "propConfig": {
                   "text": {
                     "binding": {
-                      "type": "tag",
+                      "type": "expr",
                       "config": {
-                        "tagPath": "[default]YW_Demo/Pump/Fault",
-                        "valueFormat": "value ? '⚠️ FAULT' : '✓ OK'"
+                        "expression": "if({[default]YW_Demo/Mode/EffectiveFault}, '⚠️ FAULT', '✓ OK')"
                       }
                     }
                   }

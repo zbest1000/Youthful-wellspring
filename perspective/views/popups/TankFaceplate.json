@@ -3,7 +3,7 @@
   "params": {
     "tankPath": {
       "dataType": "String",
-      "value": "[default]YW_Demo/Tanks/Tank_A"
+      "value": "[default]YW_Demo/Tanks/Tank_1"
     }
   },
   "propConfig": {},
@@ -62,14 +62,14 @@
               "name": "LevelDisplay"
             },
             "propConfig": {
-              "text": {
-                "binding": {
-                  "type": "expr",
-                  "config": {
-                    "expression": "format('{' + {view.params.tankPath} + '/Level}', '.1f') + '%'"
+                  "text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "format('{' + {view.params.tankPath} + '/LevelPct}', '.1f') + '%'"
+                      }
+                    }
                   }
-                }
-              }
             },
             "props": {
               "style": {
@@ -88,7 +88,7 @@
                 "binding": {
                   "type": "expr",
                   "config": {
-                    "expression": "'{' + {view.params.tankPath} + '/Level}'"
+                    "expression": "'{' + {view.params.tankPath} + '/LevelPct}'"
                   }
                 }
               }
