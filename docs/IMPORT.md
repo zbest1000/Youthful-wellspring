@@ -122,7 +122,9 @@ Import views in this order to resolve dependencies:
 2. Import:
    - `perspective/views/main/Shell.json`
 
-### 6. Configure Gateway Timer Script (Required for Simulation)
+### 6. Configure Gateway Timer Script (OPTIONAL - Demo/Training Mode Only)
+
+**⚠️ SKIP THIS STEP if connecting to a real PLC** - Only required for standalone demo/training without hardware.
 
 To enable the simulation logic:
 
@@ -139,7 +141,7 @@ To enable the simulation logic:
    - **Enabled:** `True`
 4. Click **Save**
 
-> **Note:** Disable this timer when connecting to a real PLC. The simulation will automatically stop if `System/SimulationActive` tag is set to `False`.
+> **Production Mode:** When connecting to a real PLC, **disable or delete** this timer script and set `[default]YW_Demo/System/SimulationActive` to `False`. Your PLC will provide all process data and control logic.
 
 ### 7. Create Perspective Session
 
@@ -154,7 +156,72 @@ To enable the simulation logic:
 
 ## Post-Import Configuration
 
-### Enable Tag History (Optional)
+### Production PLC Connection
+
+#### Step 1: Map Tags to OPC
+
+Replace memory tags with OPC UA connections:
+
+1. **Configure OPC UA Connection:**
+   - Gateway Config → OPC UA → Connections
+   - Add connection to your PLC (e.g., Modbus, Allen-Bradley, Siemens)
+   - Test connection and browse available tags
+
+2. **Map UDT Instance Tags:**
+   
+   For each tank (Tank_1, Tank_2, Tank_3, Tank_4):
+   ```
+   [default]YW_Demo/Tanks/Tank_X/LevelPct     → [OPC]DF{X}          (PLC level float)
+   [default]YW_Demo/Tanks/Tank_X/LowSP        → [OPC]DS{12X0}       (PLC low setpoint)
+   [default]YW_Demo/Tanks/Tank_X/HighSP       → [OPC]DS{12X1}       (PLC high setpoint)
+   [default]YW_Demo/Tanks/Tank_X/Priority     → [OPC]DS{12X2}       (PLC priority)
+   [default]YW_Demo/Tanks/Tank_X/Enabled      → [OPC]C{100+X}       (PLC enable coil)
+   [default]YW_Demo/Tanks/Tank_X/ValveCmd     → [OPC]C{160+X}       (PLC valve command)
+   [default]YW_Demo/Tanks/Tank_X/ValveOutput  → [OPC]Y{00X+1}       (PLC valve output)
+   [default]YW_Demo/Tanks/Tank_X/FillReq      → [OPC]C{140+X}       (PLC fill request)
+   ```
+   
+   For pump:
+   ```
+   [default]YW_Demo/Pump/PumpRunning          → [OPC]Y001           (PLC pump output)
+   [default]YW_Demo/Pump/PumpRequest          → [OPC]C060           (PLC pump request)
+   [default]YW_Demo/Pump/AnyDemand            → [OPC]C040           (PLC any demand)
+   ```
+   
+   For mode/faults:
+   ```
+   [default]YW_Demo/Mode/AutoSelected         → [OPC]X021           (PLC auto selector)
+   [default]YW_Demo/Mode/ManualSelected       → [OPC]X022           (PLC manual selector)
+   [default]YW_Demo/Mode/EStop                → [OPC]X001           (PLC E-Stop input)
+   [default]YW_Demo/Mode/PressureFault        → [OPC]X002           (PLC pressure fault)
+   [default]YW_Demo/Mode/FlowFault            → [OPC]X003           (PLC flow fault)
+   ```
+   
+   For backwash:
+   ```
+   [default]YW_Demo/Backwash/Active           → [OPC]C031           (PLC backwash active)
+   [default]YW_Demo/Backwash/Valve            → [OPC]Y010           (PLC backwash valve)
+   [default]YW_Demo/Backwash/Start            → [OPC]C030           (PLC backwash start)
+   ```
+
+3. **Edit Tag Bindings:**
+   - In Tag Browser, right-click each tag → **Edit Tag**
+   - Change **Value Source** from `memory` to `opc`
+   - Set **OPC Server** and **OPC Item Path**
+   - Click **OK**
+
+4. **Disable Simulation:**
+   - Set `[default]YW_Demo/System/SimulationActive` to `False`
+   - Disable the gateway timer script
+
+#### Step 2: Verify Live Data
+
+1. Launch Perspective session
+2. Verify tank levels update from PLC
+3. Test valve commands write back to PLC
+4. Confirm pump responds to demand signals
+
+### Enable Tag History (Recommended)
 
 To populate the **Trends** screen with historical data:
 
