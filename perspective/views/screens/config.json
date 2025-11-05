@@ -1,0 +1,183 @@
+{
+  "custom": {},
+  "params": {},
+  "propConfig": {},
+  "props": {},
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Title"
+        },
+        "position": {
+          "basis": "60px"
+        },
+        "props": {
+          "text": "System Configuration",
+          "style": {
+            "classes": "screen-title"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "ConfigPanel"
+        },
+        "position": {
+          "basis": "400px"
+        },
+        "props": {
+          "style": {
+            "classes": "card",
+            "margin": "16px",
+            "padding": "24px"
+          }
+        },
+        "type": "ia.container.flex",
+        "children": [
+          {
+            "meta": {
+              "name": "SystemMode"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "justify": "space-between",
+              "style": {
+                "padding": "12px"
+              }
+            },
+            "type": "ia.container.flex",
+            "children": [
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "text": "System Mode:",
+                  "style": {
+                    "classes": "label-primary",
+                    "fontSize": "16px"
+                  }
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "ModeDropdown"
+                },
+                "propConfig": {
+                  "value": {
+                    "binding": {
+                      "type": "tag",
+                      "config": {
+                        "tagPath": "[default]YW_Demo/Mode/Selector",
+                        "bidirectional": true
+                      }
+                    }
+                  }
+                },
+                "props": {
+                  "options": [
+                    {"value": "Auto", "label": "Automatic"},
+                    {"value": "Manual", "label": "Manual"}
+                  ],
+                  "style": {
+                    "minWidth": "200px"
+                  }
+                },
+                "type": "ia.input.dropdown"
+              }
+            ]
+          },
+          {
+            "meta": {
+              "name": "FaultAction"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "justify": "space-between",
+              "style": {
+                "padding": "12px"
+              }
+            },
+            "type": "ia.container.flex",
+            "children": [
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "text": "Fault Action:",
+                  "style": {
+                    "classes": "label-primary",
+                    "fontSize": "16px"
+                  }
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "FaultDropdown"
+                },
+                "propConfig": {
+                  "value": {
+                    "binding": {
+                      "type": "tag",
+                      "config": {
+                        "tagPath": "[default]YW_Demo/Mode/FaultAction",
+                        "bidirectional": true
+                      }
+                    }
+                  }
+                },
+                "props": {
+                  "options": [
+                    {"value": "Continue", "label": "Continue Operation"},
+                    {"value": "Stop", "label": "Stop on Fault"}
+                  ],
+                  "style": {
+                    "minWidth": "200px"
+                  }
+                },
+                "type": "ia.input.dropdown"
+              }
+            ]
+          },
+          {
+            "meta": {
+              "name": "InitializeBtn"
+            },
+            "events": {
+              "component": {
+                "onActionPerformed": [
+                  {
+                    "scope": "session",
+                    "script": "system.tag.writeBlocking(['[default]YW_Demo/System/Initialized'], [True])\nsystem.perspective.print('System Initialized')"
+                  }
+                ]
+              }
+            },
+            "props": {
+              "text": "Mark Initialized",
+              "style": {
+                "classes": "button-primary",
+                "marginTop": "24px"
+              }
+            },
+            "type": "ia.input.button"
+          }
+        ]
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}

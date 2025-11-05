@@ -1,0 +1,85 @@
+{
+  "custom": {},
+  "params": {},
+  "propConfig": {},
+  "props": {},
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Title"
+        },
+        "position": {
+          "basis": "60px"
+        },
+        "props": {
+          "text": "System Diagnostics",
+          "style": {
+            "classes": "screen-title"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "DiagnosticsTable"
+        },
+        "position": {
+          "grow": 1
+        },
+        "propConfig": {
+          "data": {
+            "binding": {
+              "type": "expr",
+              "config": {
+                "expression": "project.script.yw_sim.get_diagnostics_data()"
+              }
+            }
+          }
+        },
+        "props": {
+          "columns": [
+            {
+              "field": "component",
+              "header": "Component",
+              "width": 200
+            },
+            {
+              "field": "parameter",
+              "header": "Parameter",
+              "width": 200
+            },
+            {
+              "field": "value",
+              "header": "Value",
+              "width": 150
+            },
+            {
+              "field": "status",
+              "header": "Status",
+              "width": 100,
+              "render": "badge"
+            },
+            {
+              "field": "lastUpdate",
+              "header": "Last Update",
+              "width": 200
+            }
+          ],
+          "style": {
+            "margin": "16px",
+            "classes": "card"
+          }
+        },
+        "type": "ia.display.table"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}

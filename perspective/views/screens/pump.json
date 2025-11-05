@@ -1,0 +1,293 @@
+{
+  "custom": {},
+  "params": {},
+  "propConfig": {},
+  "props": {},
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Title"
+        },
+        "position": {
+          "basis": "60px"
+        },
+        "props": {
+          "text": "Pump Control",
+          "style": {
+            "classes": "screen-title"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "PumpControlPanel"
+        },
+        "position": {
+          "basis": "400px"
+        },
+        "props": {
+          "style": {
+            "classes": "card",
+            "margin": "16px"
+          }
+        },
+        "type": "ia.container.flex",
+        "children": [
+          {
+            "meta": {
+              "name": "RunningIndicator"
+            },
+            "propConfig": {
+              "text": {
+                "binding": {
+                  "type": "tag",
+                  "config": {
+                    "tagPath": "[default]YW_Demo/Pump/Running",
+                    "valueFormat": "value ? '🟢 RUNNING' : '🔴 STOPPED'"
+                  }
+                }
+              },
+              "style": {
+                "binding": {
+                  "type": "tag",
+                  "config": {
+                    "tagPath": "[default]YW_Demo/Pump/Running",
+                    "transforms": [
+                      {
+                        "type": "script",
+                        "config": {
+                          "script": "return {'classes': 'badge-success' if value else 'badge-critical', 'fontSize': '24px', 'textAlign': 'center'}"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "props": {},
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "ModeSelector"
+            },
+            "props": {
+              "direction": "row",
+              "justify": "space-around",
+              "style": {
+                "padding": "16px"
+              }
+            },
+            "type": "ia.container.flex",
+            "children": [
+              {
+                "meta": {
+                  "name": "AutoMode"
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": [
+                      {
+                        "scope": "session",
+                        "script": "system.tag.writeBlocking(['[default]YW_Demo/Pump/Mode'], ['Auto'])"
+                      }
+                    ]
+                  }
+                },
+                "props": {
+                  "text": "Auto Mode",
+                  "style": {
+                    "classes": "button-primary"
+                  }
+                },
+                "type": "ia.input.button"
+              },
+              {
+                "meta": {
+                  "name": "ManualMode"
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": [
+                      {
+                        "scope": "session",
+                        "script": "system.tag.writeBlocking(['[default]YW_Demo/Pump/Mode'], ['Manual'])"
+                      }
+                    ]
+                  }
+                },
+                "props": {
+                  "text": "Manual Mode",
+                  "style": {
+                    "classes": "button-secondary"
+                  }
+                },
+                "type": "ia.input.button"
+              }
+            ]
+          },
+          {
+            "meta": {
+              "name": "ManualControls"
+            },
+            "propConfig": {
+              "visible": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "{[default]YW_Demo/Pump/Mode} = 'Manual'"
+                  }
+                }
+              }
+            },
+            "props": {
+              "direction": "row",
+              "justify": "space-around",
+              "style": {
+                "padding": "16px"
+              }
+            },
+            "type": "ia.container.flex",
+            "children": [
+              {
+                "meta": {
+                  "name": "StartBtn"
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": [
+                      {
+                        "scope": "session",
+                        "script": "system.tag.writeBlocking(['[default]YW_Demo/Pump/Command'], [True])"
+                      }
+                    ]
+                  }
+                },
+                "props": {
+                  "text": "START",
+                  "style": {
+                    "classes": "button-success",
+                    "fontSize": "18px",
+                    "minWidth": "150px"
+                  }
+                },
+                "type": "ia.input.button"
+              },
+              {
+                "meta": {
+                  "name": "StopBtn"
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": [
+                      {
+                        "scope": "session",
+                        "script": "system.tag.writeBlocking(['[default]YW_Demo/Pump/Command'], [False])"
+                      }
+                    ]
+                  }
+                },
+                "props": {
+                  "text": "STOP",
+                  "style": {
+                    "classes": "button-critical",
+                    "fontSize": "18px",
+                    "minWidth": "150px"
+                  }
+                },
+                "type": "ia.input.button"
+              }
+            ]
+          },
+          {
+            "meta": {
+              "name": "PumpStats"
+            },
+            "props": {
+              "columns": 2,
+              "style": {
+                "padding": "16px"
+              }
+            },
+            "type": "ia.container.flex",
+            "children": [
+              {
+                "meta": {
+                  "name": "RunHoursLabel"
+                },
+                "props": {
+                  "text": "Run Hours:",
+                  "style": {
+                    "classes": "label-secondary"
+                  }
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "RunHoursValue"
+                },
+                "propConfig": {
+                  "text": {
+                    "binding": {
+                      "type": "tag",
+                      "config": {
+                        "tagPath": "[default]YW_Demo/Pump/RunHours",
+                        "valueFormat": "%.1f hrs"
+                      }
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "value-display"
+                  }
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "FaultLabel"
+                },
+                "props": {
+                  "text": "Fault Status:",
+                  "style": {
+                    "classes": "label-secondary"
+                  }
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "FaultValue"
+                },
+                "propConfig": {
+                  "text": {
+                    "binding": {
+                      "type": "tag",
+                      "config": {
+                        "tagPath": "[default]YW_Demo/Pump/Fault",
+                        "valueFormat": "value ? '⚠️ FAULT' : '✓ OK'"
+                      }
+                    }
+                  }
+                },
+                "props": {},
+                "type": "ia.display.label"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}
