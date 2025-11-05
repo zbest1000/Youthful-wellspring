@@ -16,7 +16,7 @@ A complete Ignition 8.3 Perspective SCADA project for water tank management, con
 - **Backwash sequence automation** with multi-step workflow
 - **Real-time alarming and trending** with tag history integration
 - **Comprehensive diagnostics** and configuration screens
-- **OPC UA/PLC connectivity** for live process data
+- **Modbus TCP connectivity** to Click PLC (AutomationDirect) for live process data
 - **Optional simulation mode** for training, testing, and demonstrations (no PLC required)
 
 ---
@@ -150,7 +150,7 @@ A complete Ignition 8.3 Perspective SCADA project for water tank management, con
 - Ignition 8.3+ Gateway
 - Perspective Module license
 - Designer Launcher installed
-- **Production:** PLC/SCADA system with OPC UA connectivity
+- **Production:** Click PLC with Modbus TCP connectivity
 - **Demo/Training:** No hardware required (simulation mode)
 
 ### Import Steps (Summary)
@@ -163,9 +163,10 @@ A complete Ignition 8.3 Perspective SCADA project for water tank management, con
 6. **Create Session:** Set primary view to `YouthfulWellspring/main/Shell`
 
 **For Production Use:**
-7. **Map OPC Tags:** Follow [docs/PLC_MAPPING.md](docs/PLC_MAPPING.md) to connect to your PLC
-8. **Configure Alarms:** Set up alarm pipelines for tank levels and faults
-9. **Enable Tag History:** Configure historian for trending
+7. **Configure Modbus Device:** Set up Modbus TCP connection to Click PLC
+8. **Map Modbus Tags:** Follow [docs/PLC_MAPPING.md](docs/PLC_MAPPING.md) to map all registers
+9. **Configure Alarms:** Set up alarm pipelines for tank levels and faults
+10. **Enable Tag History:** Configure historian for trending
 
 **For Demo/Training Mode:**
 7. **Configure Timer Script:** Gateway timer calling `project.script.yw_sim.run_tick()` every 2s
@@ -268,39 +269,56 @@ The `yw_sim.py` script module replicates PLC logic:
 
 ## 🔧 Configuration
 
-### Connecting to Your PLC (Production Mode)
+### Connecting to Click PLC via Modbus TCP (Production Mode)
 
-#### Step 1: Configure OPC UA Connection
+#### Step 1: Configure Click PLC
 
-1. In Gateway Config, add OPC UA connection to your PLC
-2. Browse available tags and verify connectivity
-3. Note the PLC memory addresses for each UDT parameter
+1. **In Click Programming Software:**
+   - PLC → Setup → Ethernet
+   - Enable Modbus TCP/IP Slave
+   - Set IP Address (e.g., `192.168.1.100`)
+   - Port: `502`
+   - Unit ID: `1`
 
-#### Step 2: Map UDT Tags to PLC Addresses
+2. **Program PLC Logic:**
+   - Scale analog inputs (4-20mA) to 0-100% (DF1-DF4)
+   - Implement tank control logic (fill requests, valve arbitration)
+   - Configure pump control with ASC timers
+   - Set up backwash sequence
 
-Replace the memory tags in `[default]YW_Demo` with OPC tag paths:
+#### Step 2: Configure Ignition Modbus Device
 
-**Example Mapping (adjust to your PLC):**
+1. **Gateway Config** → **OPC UA** → **Device Connections**
+2. **Add Device:**
+   - Device Type: `Modbus TCP`
+   - Name: `ClickPLC`
+   - Hostname: `192.168.1.100` (your PLC IP)
+   - Port: `502`
+   - Unit ID: `1`
+   - Timeout: `5000 ms`
+3. **Test Connection:** Browse to verify connectivity
 
-| UDT Tag Path | PLC Address Example | Notes |
-|-------------|---------------------|-------|
-| `Tanks/Tank_1/LevelPct` | `ns=1;s=[PLC]DF1` | Tank 1 level (DF1-DF8) |
-| `Tanks/Tank_1/LowSP` | `ns=1;s=[PLC]DS1200` | Tank 1 low setpoint |
-| `Tanks/Tank_1/HighSP` | `ns=1;s=[PLC]DS1201` | Tank 1 high setpoint |
-| `Tanks/Tank_1/Priority` | `ns=1;s=[PLC]DS1202` | Tank 1 priority |
-| `Tanks/Tank_1/Enabled` | `ns=1;s=[PLC]C100` | Tank 1 enable coil |
-| `Tanks/Tank_1/ValveOutput` | `ns=1;s=[PLC]Y002` | Tank 1 valve output |
-| `Pump/PumpRunning` | `ns=1;s=[PLC]Y001` | Pump output (Y001) |
-| `Pump/PumpRequest` | `ns=1;s=[PLC]C060` | Pump request coil |
-| `Mode/AutoSelected` | `ns=1;s=[PLC]X021` | Auto mode selector |
-| `Mode/EStop` | `ns=1;s=[PLC]X001` | E-Stop input |
-| `Backwash/Active` | `ns=1;s=[PLC]C31` | Backwash active |
-| `Backwash/Valve` | `ns=1;s=[PLC]Y010` | Backwash valve output |
+#### Step 3: Map UDT Tags to Modbus Registers
+
+Replace memory tags with Modbus addresses (see full mapping in [docs/PLC_MAPPING.md](docs/PLC_MAPPING.md)):
+
+**Critical Tags - Quick Reference:**
+
+| UDT Tag Path | Click Address | Modbus Address | Type |
+|-------------|---------------|----------------|------|
+| `Tanks/Tank_1/LevelPct` | DF1 | [ClickPLC]HR400001 | Float (2 regs) |
+| `Tanks/Tank_1/LowSP` | DS1200 | [ClickPLC]HR401200 | Int16 |
+| `Tanks/Tank_1/HighSP` | DS1201 | [ClickPLC]HR401201 | Int16 |
+| `Tanks/Tank_1/ValveOutput` | Y002 | [ClickPLC]C00002 | Bool |
+| `Pump/PumpRunning` | Y001 | [ClickPLC]C00001 | Bool |
+| `Mode/AutoSelected` | X021 | [ClickPLC]DI10021 | Bool |
+| `Mode/EStop` | X001 | [ClickPLC]DI10001 | Bool |
+| `Backwash/Valve` | Y010 | [ClickPLC]C00010 | Bool |
 
 **Methods to Map Tags:**
-- **Option A (Recommended)**: In Tag Browser, edit each UDT instance tag and change `valueSource` from `memory` to `opc` and set OPC path
-- **Option B**: Create new UDT instances pointing to OPC tags
-- **Option C**: Use tag import/export with find-replace to bulk update paths
+- **Option A (Recommended)**: Tag Browser → Edit each tag → Change `valueSource` to `OPC` → Set OPC Item Path
+- **Option B**: Export tags to CSV → Find/replace paths → Re-import
+- **Option C**: Use Tag Import with pre-configured CSV (see PLC_MAPPING.md)
 
 #### Step 3: Disable Simulation Mode
 
@@ -431,8 +449,8 @@ Before connecting to a live PLC:
 ## 📝 Documentation
 
 ### Production Use
-- **[PLC_MAPPING.md](docs/PLC_MAPPING.md)** - 🏭 **Production PLC tag mapping guide** (Click PLC, Allen-Bradley, Siemens, Modbus)
-- **[IMPORT.md](docs/IMPORT.md)** - Complete import instructions with production setup steps
+- **[PLC_MAPPING.md](docs/PLC_MAPPING.md)** - 🏭 **Click PLC + Modbus TCP mapping guide** (complete register map, wiring, PLC programming)
+- **[IMPORT.md](docs/IMPORT.md)** - Complete import instructions with Modbus device setup
 
 ### Reference
 - **[REACT_ALIGNMENT.md](docs/REACT_ALIGNMENT.md)** - Verification of alignment with React source code

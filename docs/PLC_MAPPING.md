@@ -1,105 +1,142 @@
-# PLC Tag Mapping Guide
+# Click PLC + Modbus Tag Mapping Guide
 
-This document provides detailed mapping between Ignition UDT tags and PLC memory addresses for connecting Youthful Wellspring to a real control system.
+This document provides detailed mapping between Ignition UDT tags and Click PLC memory addresses via **Modbus TCP** communication.
 
 ## Overview
 
-The UDT structure is designed to mirror typical PLC tag organization (based on Click PLC conventions). Adapt the addresses below to match your specific PLC brand and memory layout.
+The UDT structure is designed to mirror Click PLC (AutomationDirect) memory organization. The system communicates via **Modbus TCP** protocol.
+
+**Hardware:**
+- Click PLC (C0-02DD1-D, C0-04AD, or similar)
+- Ethernet port for Modbus TCP
+- Tank level sensors (4-20mA analog inputs)
+- Valve outputs (digital outputs)
+- Pump control (digital output)
 
 ---
 
-## Tag Provider Configuration
+## Modbus Device Configuration
 
-### OPC UA Connection Setup
+### Step 1: Configure Click PLC for Modbus TCP
 
-1. **Gateway Config** → **OPC UA** → **Connections**
-2. **Add New Connection:**
-   - Name: `ProductionPLC`
-   - Endpoint URL: `opc.tcp://[PLC_IP]:4840` (adjust for your PLC)
-   - Security: Configure as needed
-   - Identity: Username/password or anonymous
+1. **In Click Programming Software:**
+   - Go to PLC → Setup → Ethernet
+   - Enable Modbus TCP Server
+   - Set IP Address (e.g., `192.168.1.100`)
+   - Set Port: `502` (default Modbus TCP port)
+   - Enable Modbus addressing
+
+2. **Modbus Slave ID:** Typically `1` (default)
+
+### Step 2: Configure Ignition Modbus Driver
+
+1. **Gateway Config** → **OPC UA** → **Device Connections**
+2. **Add Device:**
+   - **Name:** `ClickPLC`
+   - **Device Type:** `Modbus TCP`
+   - **Hostname:** `192.168.1.100` (your PLC IP)
+   - **Port:** `502`
+   - **Unit ID:** `1`
+   - **Timeout:** `5000 ms`
+   - **Scan Rate:** `1000 ms` (adjust as needed)
+
+3. **Test Connection:** Browse available addresses to verify connectivity
+
+---
+
+## Click PLC Memory Map
+
+### Click PLC Address Types
+
+| Click Type | Modbus Function Code | Modbus Address Range | Description |
+|-----------|---------------------|---------------------|-------------|
+| **X (Inputs)** | FC02 (Read Discrete Inputs) | 10001-10xxx | Physical digital inputs |
+| **Y (Outputs)** | FC01/05 (Read/Write Coils) | 00001-00xxx | Physical digital outputs |
+| **C (Control Relays)** | FC01/05 (Read/Write Coils) | 00001-08192 | Internal coils/bits |
+| **DS (Data Registers)** | FC03/06 (Read/Write Holding Registers) | 400001-404500 | 16-bit integers |
+| **DF (Data Registers Float)** | FC03/06 (Read/Write Holding Registers) | 400001-404500 | 32-bit floats (2 registers) |
+| **T (Timers)** | FC01 (Read Coils) | Status bit | Timer done bit |
+| **TD (Timer Data)** | FC03 (Read Holding Registers) | Timer accumulator | Timer PV |
 
 ---
 
 ## Tank Tags Mapping
 
-### Tank 1 (Repeat for Tank_2, Tank_3, Tank_4)
+### Tank 1 - Modbus Register Map
 
-| Ignition UDT Tag | PLC Address | Data Type | R/W | Description |
-|-----------------|-------------|-----------|-----|-------------|
-| `Tanks/Tank_1/Name` | (HMI Only) | String | R | Tank identifier - not in PLC |
-| `Tanks/Tank_1/CapacityLiters` | (HMI Only) | Int | R | Tank capacity - not in PLC |
-| `Tanks/Tank_1/Contents` | (HMI Only) | String | R | Contents description - not in PLC |
-| **`Tanks/Tank_1/LevelPct`** | **DF1** | Float | R | **Tank level percentage (0-100)** |
-| `Tanks/Tank_1/LevelX10` | DS2401 | Int | R | Level * 10 (0-1000) |
-| **`Tanks/Tank_1/LowSP`** | **DS1200** | Float | R/W | **Low setpoint (%)** |
-| **`Tanks/Tank_1/HighSP`** | **DS1201** | Float | R/W | **High setpoint (%)** |
-| **`Tanks/Tank_1/Priority`** | **DS1202** | Int | R/W | **Priority (1-8, 1=highest)** |
-| **`Tanks/Tank_1/Enabled`** | **C100** | Bool | R/W | **Global enable coil** |
-| `Tanks/Tank_1/AutoEnable` | C101 (custom) | Bool | R/W | AUTO_en_TK1 |
-| `Tanks/Tank_1/ManEnable` | C102 (custom) | Bool | R/W | MAN_en_TK1 |
-| `Tanks/Tank_1/OOS` | C103 (custom) | Bool | R/W | Out of Service flag |
-| **`Tanks/Tank_1/FillReq`** | **C140** | Bool | R | **Computed fill request** |
-| `Tanks/Tank_1/PreCmd` | C160 | Bool | R | Pre-arbitration intent |
-| **`Tanks/Tank_1/ValveCmd`** | **C161** | Bool | R | **Winning valve command** |
-| **`Tanks/Tank_1/ValveOutput`** | **Y002** | Bool | R | **Actual valve output** |
-| `Tanks/Tank_1/SensorOpen` | C200 | Bool | R | Level sensor open fault |
-| `Tanks/Tank_1/ValveHWPresent` | (HMI Only) | Bool | R | Hardware present check |
-| `Tanks/Tank_1/MinOpenTimer` | T200 | Bool | R | Min open timer active |
-| `Tanks/Tank_1/MinOpenPV` | TD200 | Int | R | Min open timer PV |
+| Ignition UDT Tag | Click Address | Modbus Address | Modbus Type | Data Type | R/W | Description |
+|-----------------|---------------|----------------|-------------|-----------|-----|-------------|
+| `Tanks/Tank_1/Name` | (HMI Only) | - | - | String | R | Tank identifier |
+| `Tanks/Tank_1/CapacityLiters` | (HMI Only) | - | - | Int | R | Tank capacity |
+| `Tanks/Tank_1/Contents` | (HMI Only) | - | - | String | R | Contents description |
+| **`Tanks/Tank_1/LevelPct`** | **DF1** | **400001-400002** | **Holding Reg (Float)** | Float | R | **Tank level % (0-100)** |
+| `Tanks/Tank_1/LevelX10` | DS2401 | 402401 | Holding Reg | Int16 | R | Level * 10 (0-1000) |
+| **`Tanks/Tank_1/LowSP`** | **DS1200** | **401200** | **Holding Reg** | Int16 | R/W | **Low SP (0-99)** |
+| **`Tanks/Tank_1/HighSP`** | **DS1201** | **401201** | **Holding Reg** | Int16 | R/W | **High SP (1-100)** |
+| **`Tanks/Tank_1/Priority`** | **DS1202** | **401202** | **Holding Reg** | Int16 | R/W | **Priority (1-8)** |
+| **`Tanks/Tank_1/Enabled`** | **C100** | **00100** | **Coil** | Bool | R/W | **Global enable** |
+| `Tanks/Tank_1/AutoEnable` | C101 | 00101 | Coil | Bool | R/W | AUTO enable |
+| `Tanks/Tank_1/ManEnable` | C102 | 00102 | Coil | Bool | R/W | MANUAL enable |
+| `Tanks/Tank_1/OOS` | C103 | 00103 | Coil | Bool | R/W | Out of Service |
+| **`Tanks/Tank_1/FillReq`** | **C140** | **00140** | **Coil** | Bool | R | **Fill request** |
+| `Tanks/Tank_1/PreCmd` | C160 | 00160 | Coil | Bool | R | Pre-arbitration |
+| **`Tanks/Tank_1/ValveCmd`** | **C161** | **00161** | **Coil** | Bool | R | **Valve command** |
+| **`Tanks/Tank_1/ValveOutput`** | **Y002** | **00002** | **Coil** | Bool | R | **Valve output** |
+| `Tanks/Tank_1/SensorOpen` | C200 | 00200 | Coil | Bool | R | Sensor fault |
 
-### Tank 2-4 Address Increments
+### Tank 2-4 Modbus Addresses
 
-| Tank | Level | LowSP | HighSP | Priority | Enabled | FillReq | ValveCmd | ValveOutput |
-|------|-------|-------|--------|----------|---------|---------|----------|-------------|
-| Tank_2 | DF2 | DS1210 | DS1211 | DS1212 | C104 | C141 | C162 | Y003 |
-| Tank_3 | DF3 | DS1220 | DS1221 | DS1222 | C108 | C142 | C163 | Y004 |
-| Tank_4 | DF4 | DS1230 | DS1231 | DS1232 | C112 | C143 | C164 | Y005 |
+| Tank | LevelPct (DF) | LowSP (DS) | HighSP (DS) | Priority (DS) | Enabled (C) | FillReq (C) | ValveCmd (C) | ValveOutput (Y) |
+|------|---------------|------------|-------------|---------------|-------------|-------------|--------------|-----------------|
+| **Tank_1** | 400001-400002 | 401200 | 401201 | 401202 | 00100 | 00140 | 00161 | 00002 |
+| **Tank_2** | 400003-400004 | 401210 | 401211 | 401212 | 00104 | 00141 | 00162 | 00003 |
+| **Tank_3** | 400005-400006 | 401220 | 401221 | 401222 | 00108 | 00142 | 00163 | 00004 |
+| **Tank_4** | 400007-400008 | 401230 | 401231 | 401232 | 00112 | 00143 | 00164 | 00005 |
 
 ---
 
 ## Pump Tags Mapping
 
-| Ignition UDT Tag | PLC Address | Data Type | R/W | Description |
-|-----------------|-------------|-----------|-----|-------------|
-| **`Pump/AnyDemand`** | **C040** | Bool | R | **Any tank or backwash request** |
-| **`Pump/PumpRequest`** | **C060** | Bool | R | **Pump request coil** |
-| **`Pump/PumpRunning`** | **Y001** (mirror C040) | Bool | R | **Pump output status** |
-| `Pump/PumpAvailable` | (Computed) | Bool | R | Computed in PLC/HMI |
-| `Pump/ASCMinOffTimer` | T2 | Bool | R | Anti-Short-Cycle Min-OFF timer |
-| `Pump/ASCMinOffPV` | TD2 | Int | R | Min-OFF timer present value (seconds) |
-| `Pump/ASCMinRunTimer` | T1 | Bool | R | Anti-Short-Cycle Min-RUN timer |
-| `Pump/ASCMinRunPV` | TD1 | Int | R | Min-RUN timer present value (seconds) |
-| **`Pump/ASCMinOffSetting`** | **DS101** | Int | R/W | **Min-OFF duration (seconds)** |
-| **`Pump/ASCMinRunSetting`** | **DS102** | Int | R/W | **Min-RUN duration (seconds)** |
+| Ignition UDT Tag | Click Address | Modbus Address | Modbus Type | Data Type | R/W | Description |
+|-----------------|---------------|----------------|-------------|-----------|-----|-------------|
+| **`Pump/AnyDemand`** | **C040** | **00040** | **Coil** | Bool | R | **Any demand** |
+| **`Pump/PumpRequest`** | **C060** | **00060** | **Coil** | Bool | R | **Pump request** |
+| **`Pump/PumpRunning`** | **Y001** | **00001** | **Coil** | Bool | R | **Pump output** |
+| `Pump/PumpAvailable` | (Computed) | - | - | Bool | R | Computed |
+| `Pump/ASCMinOffTimer` | T2 | 00002 (status) | Coil | Bool | R | ASC Min-OFF timer |
+| `Pump/ASCMinOffPV` | TD2 | 400012 | Holding Reg | Int16 | R | Min-OFF PV (sec) |
+| `Pump/ASCMinRunTimer` | T1 | 00001 (status) | Coil | Bool | R | ASC Min-RUN timer |
+| `Pump/ASCMinRunPV` | TD1 | 400011 | Holding Reg | Int16 | R | Min-RUN PV (sec) |
+| **`Pump/ASCMinOffSetting`** | **DS101** | **400101** | **Holding Reg** | Int16 | R/W | **Min-OFF (sec)** |
+| **`Pump/ASCMinRunSetting`** | **DS102** | **400102** | **Holding Reg** | Int16 | R/W | **Min-RUN (sec)** |
 
 ---
 
 ## Mode Tags Mapping
 
-| Ignition UDT Tag | PLC Address | Data Type | R/W | Description |
-|-----------------|-------------|-----------|-----|-------------|
-| **`Mode/AutoSelected`** | **X021** | Bool | R | **AUTO mode selector switch** |
-| `Mode/ManualSelected` | X022 | Bool | R | MANUAL mode selector switch |
-| `Mode/SystemStopped` | X023 | Bool | R | SYSTEM STOPPED selector |
-| **`Mode/EStop`** | **X001** | Bool | R | **Emergency Stop input** |
-| **`Mode/PressureFault`** | **X002** | Bool | R | **Pressure fault input** |
-| **`Mode/FlowFault`** | **X003** | Bool | R | **Flow fault input** |
-| `Mode/EffectiveFault` | (Computed) | Bool | R | Computed from E-Stop + faults |
-| **`Mode/BypassPFFault`** | **C020** | Bool | R/W | **Pressure/Flow fault bypass (HMI toggle)** |
+| Ignition UDT Tag | Click Address | Modbus Address | Modbus Type | Data Type | R/W | Description |
+|-----------------|---------------|----------------|-------------|-----------|-----|-------------|
+| **`Mode/AutoSelected`** | **X021** | **10021** | **Discrete Input** | Bool | R | **AUTO selector** |
+| `Mode/ManualSelected` | X022 | 10022 | Discrete Input | Bool | R | MANUAL selector |
+| `Mode/SystemStopped` | X023 | 10023 | Discrete Input | Bool | R | STOPPED selector |
+| **`Mode/EStop`** | **X001** | **10001** | **Discrete Input** | Bool | R | **E-Stop input** |
+| **`Mode/PressureFault`** | **X002** | **10002** | **Discrete Input** | Bool | R | **Pressure fault** |
+| **`Mode/FlowFault`** | **X003** | **10003** | **Discrete Input** | Bool | R | **Flow fault** |
+| `Mode/EffectiveFault` | (Computed) | - | - | Bool | R | Computed fault |
+| **`Mode/BypassPFFault`** | **C020** | **00020** | **Coil** | Bool | R/W | **Fault bypass** |
 
 ---
 
 ## Backwash Tags Mapping
 
-| Ignition UDT Tag | PLC Address | Data Type | R/W | Description |
-|-----------------|-------------|-----------|-----|-------------|
-| **`Backwash/Start`** | **C030** | Bool | W | **Backwash start command (HMI button)** |
-| **`Backwash/Active`** | **C031** | Bool | R | **Backwash sequence active** |
-| **`Backwash/Valve`** | **Y010** | Bool | R | **Backwash valve output** |
-| **`Backwash/DurationSetting`** | **DS103** | Int | R/W | **Backwash duration (seconds)** |
-| `Backwash/TimerPV` | TD10 | Int | R | Backwash timer present value |
-| `Backwash/HWTrigger` | X004 | Bool | R | Hardware trigger switch (optional) |
+| Ignition UDT Tag | Click Address | Modbus Address | Modbus Type | Data Type | R/W | Description |
+|-----------------|---------------|----------------|-------------|-----------|-----|-------------|
+| **`Backwash/Start`** | **C030** | **00030** | **Coil** | Bool | W | **Start command** |
+| **`Backwash/Active`** | **C031** | **00031** | **Coil** | Bool | R | **Sequence active** |
+| **`Backwash/Valve`** | **Y010** | **00010** | **Coil** | Bool | R | **Valve output** |
+| **`Backwash/DurationSetting`** | **DS103** | **400103** | **Holding Reg** | Int16 | R/W | **Duration (sec)** |
+| `Backwash/TimerPV` | TD10 | 400020 | Holding Reg | Int16 | R | Timer PV |
+| `Backwash/HWTrigger` | X004 | 10004 | Discrete Input | Bool | R | HW trigger |
 
 ---
 
@@ -128,60 +165,177 @@ The UDT structure is designed to mirror typical PLC tag organization (based on C
 
 ---
 
-## PLC-Specific Notes
+## Click PLC Programming Notes
 
-### Click PLC (AutomationDirect)
-- Address format: `C100`, `DF1`, `DS1200`, `X001`, `Y001`, `T1`, `TD1`
-- Coils: C1-C2000
-- Data registers: DS1-DS4500
-- Timers: T1-T500
+### Analog Input Scaling (Tank Levels)
 
-### Allen-Bradley CompactLogix/ControlLogix
-- Tag-based addressing: `Program:MainProgram.Tank1_Level`
-- Use tag names instead of addresses
-- Map to UDT structure in PLC for consistency
+Tank level sensors (4-20mA) must be scaled to 0-100% in Click PLC:
 
-### Siemens S7-1200/1500
-- Address format: `DB1.DBD0` (Data Block)
-- Use symbolic names in TIA Portal
-- Map OPC UA tags to DB structure
+**Click PLC Ladder Logic:**
+```
+Analog Input X001 (4-20mA) → Scale to DF1 (0.0-100.0)
 
-### Modbus RTU/TCP
-- Register addresses: 40001+
-- Coils: 00001+
-- Map holding registers to floats/ints, coils to bools
+Using SCALE instruction:
+  Input: X001 (raw counts 0-4000)
+  Input Min: 800 (4mA = 800 counts)
+  Input Max: 4000 (20mA = 4000 counts)
+  Output Min: 0.0
+  Output Max: 100.0
+  Output: DF1
+```
+
+Repeat for Tank 2-4:
+- X002 → DF2
+- X003 → DF3
+- X004 → DF4
+
+### Modbus TCP Configuration in Click PLC
+
+1. **Enable Modbus TCP Server:**
+   - Click Programming Software → PLC → Setup
+   - Ethernet tab → Enable Modbus TCP/IP Slave
+   - Set IP Address: `192.168.1.100`
+   - Port: `502`
+   - Unit ID: `1`
+
+2. **Memory Allocation:**
+   - Ensure sufficient memory for data registers (DS1-DS4500)
+   - Reserve C1-C200 for control logic
+   - Reserve Y1-Y10 for outputs
+
+3. **Watchdog Timer (Optional):**
+   - Implement Modbus communication watchdog
+   - If no Modbus read/write for 10 seconds, fault system
+   - Use timer to monitor last Modbus activity
+
+### PLC Program Structure
+
+**Scan Order:**
+1. Read analog inputs → Scale to DF1-DF4
+2. Read digital inputs (X001-X023) → Mode, faults
+3. **Tank Control Logic:**
+   - Calculate fill requests (C140-C143)
+   - Priority arbitration → Valve commands (C161-C164)
+   - Map valve commands to outputs (Y002-Y005)
+4. **Pump Control Logic:**
+   - Aggregate demand (C040)
+   - Anti-short-cycle timers (T1, T2)
+   - Pump output (Y001)
+5. **Backwash Logic:**
+   - Monitor start command (C030)
+   - Timer control (T10)
+   - Valve output (Y010)
+6. Write outputs
+7. Update status registers for HMI
+
+### Wiring Diagram Reference
+
+**Analog Inputs (4-20mA):**
+- X001: Tank 1 Level Sensor
+- X002: Tank 2 Level Sensor
+- X003: Tank 3 Level Sensor
+- X004: Tank 4 Level Sensor
+
+**Digital Inputs:**
+- X001: E-Stop (NC contact)
+- X002: Pressure Switch (NO contact)
+- X003: Flow Switch (NO contact)
+- X021: Auto Mode Selector
+- X022: Manual Mode Selector
+- X023: System Stop Selector
+
+**Digital Outputs:**
+- Y001: Pump Contactor
+- Y002: Tank 1 Inlet Valve
+- Y003: Tank 2 Inlet Valve
+- Y004: Tank 3 Inlet Valve
+- Y005: Tank 4 Inlet Valve
+- Y010: Backwash Valve
 
 ---
 
-## Example OPC Tag Path Configuration
+## Ignition Tag Configuration Examples
 
-### For Click PLC via Modbus
+### Method 1: Direct Modbus Addressing (Recommended)
 
+In Ignition Tag Browser, configure each tag:
+
+**Tank 1 Level (Float):**
 ```
-Tank 1 Level:
-  OPC Path: ns=2;s=Channel1.Device1.DF1
-  Data Type: Float
-  Scan Class: 1 second
-
-Tank 1 Low Setpoint:
-  OPC Path: ns=2;s=Channel1.Device1.DS1200
-  Data Type: Float
-  Scan Class: 5 seconds
-
-Tank 1 Valve Output:
-  OPC Path: ns=2;s=Channel1.Device1.Y002
-  Data Type: Boolean
-  Scan Class: 500 ms
+Tag Name: LevelPct
+Value Source: OPC
+OPC Server: Ignition OPC UA Server
+OPC Item Path: [ClickPLC]HR400001
+Data Type: Float (32-bit, 2 registers)
+Scan Class: Direct/1000ms
 ```
 
-### For Allen-Bradley via EtherNet/IP
+**Tank 1 Low Setpoint (Int):**
+```
+Tag Name: LowSP
+Value Source: OPC
+OPC Server: Ignition OPC UA Server
+OPC Item Path: [ClickPLC]HR401200
+Data Type: Int2
+Scan Class: Default/5000ms
+```
 
+**Tank 1 Valve Output (Bool):**
 ```
-Tank 1 Level:
-  OPC Path: [ControllerName]Program:MainProgram.Tank1_LevelPct
-  Data Type: Real
-  Scan Class: 1 second
+Tag Name: ValveOutput
+Value Source: OPC
+OPC Server: Ignition OPC UA Server
+OPC Item Path: [ClickPLC]C00002
+Data Type: Boolean
+Scan Class: Direct/500ms
 ```
+
+**Pump Output (Bool):**
+```
+Tag Name: PumpRunning
+Value Source: OPC
+OPC Server: Ignition OPC UA Server
+OPC Item Path: [ClickPLC]C00001
+Data Type: Boolean
+Scan Class: Direct/500ms
+```
+
+**Mode Selector Input (Bool):**
+```
+Tag Name: AutoSelected
+Value Source: OPC
+OPC Server: Ignition OPC UA Server
+OPC Item Path: [ClickPLC]DI10021
+Data Type: Boolean
+Scan Class: Direct/250ms
+```
+
+### Method 2: Using Address Shortcuts
+
+Ignition Modbus driver syntax:
+- **Holding Registers (DS/DF):** `[Device]HR400001` (400001 = register 1)
+- **Coils (C/Y):** `[Device]C00100` (coil 100)
+- **Discrete Inputs (X):** `[Device]DI10001` (input 1)
+- **Input Registers:** `[Device]IR300001` (if used)
+
+### Method 3: Bulk Import with CSV
+
+Create a CSV file for bulk tag import:
+
+```csv
+TagPath,OPCItemPath,DataType,ScanClass
+[default]YW_Demo/Tanks/Tank_1/LevelPct,[ClickPLC]HR400001,Float4,Direct
+[default]YW_Demo/Tanks/Tank_1/LowSP,[ClickPLC]HR401200,Int2,Default
+[default]YW_Demo/Tanks/Tank_1/HighSP,[ClickPLC]HR401201,Int2,Default
+[default]YW_Demo/Tanks/Tank_1/Priority,[ClickPLC]HR401202,Int2,Default
+[default]YW_Demo/Tanks/Tank_1/Enabled,[ClickPLC]C00100,Boolean,Direct
+[default]YW_Demo/Tanks/Tank_1/ValveOutput,[ClickPLC]C00002,Boolean,Direct
+[default]YW_Demo/Pump/PumpRunning,[ClickPLC]C00001,Boolean,Direct
+[default]YW_Demo/Mode/AutoSelected,[ClickPLC]DI10021,Boolean,Direct
+[default]YW_Demo/Mode/EStop,[ClickPLC]DI10001,Boolean,Direct
+```
+
+Import via: Tag Browser → Import Tags → CSV
 
 ---
 
