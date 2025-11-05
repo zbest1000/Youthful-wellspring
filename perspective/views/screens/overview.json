@@ -112,6 +112,110 @@
               }
             },
             "type": "ia.container.view"
+          },
+          {
+            "meta": {
+              "name": "ActiveTanksCard"
+            },
+            "position": {
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "card",
+                "padding": "20px"
+              }
+            },
+            "type": "ia.container.flex",
+            "children": [
+              {
+                "meta": {
+                  "name": "Header"
+                },
+                "props": {
+                  "direction": "row",
+                  "justify": "space-between",
+                  "alignItems": "center"
+                },
+                "type": "ia.container.flex",
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "props": {
+                      "text": "Active Tanks",
+                      "style": {
+                        "classes": "label-secondary",
+                        "fontSize": "14px"
+                      }
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Icon"
+                    },
+                    "props": {
+                      "path": "material/droplet",
+                      "style": {
+                        "color": "#3b82f6",
+                        "width": "20px",
+                        "height": "20px"
+                      }
+                    },
+                    "type": "ia.display.icon"
+                  }
+                ]
+              },
+              {
+                "meta": {
+                  "name": "Count"
+                },
+                "propConfig": {
+                  "text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({[default]YW_Demo/Tanks/Tank_1/Enabled}, 1, 0) + if({[default]YW_Demo/Tanks/Tank_2/Enabled}, 1, 0) + if({[default]YW_Demo/Tanks/Tank_3/Enabled}, 1, 0) + if({[default]YW_Demo/Tanks/Tank_4/Enabled}, 1, 0) + if({[default]YW_Demo/Tanks/Tank_5/Enabled}, 1, 0) + if({[default]YW_Demo/Tanks/Tank_6/Enabled}, 1, 0) + if({[default]YW_Demo/Tanks/Tank_7/Enabled}, 1, 0) + if({[default]YW_Demo/Tanks/Tank_8/Enabled}, 1, 0) + ' / ' + {[default]YW_Demo/Config/TankCount}"
+                      }
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "value-display",
+                    "fontSize": "32px",
+                    "marginTop": "8px"
+                  }
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Subtitle"
+                },
+                "propConfig": {
+                  "text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "(if({[default]YW_Demo/Tanks/Tank_1/FillReq}, 1, 0) + if({[default]YW_Demo/Tanks/Tank_2/FillReq}, 1, 0) + if({[default]YW_Demo/Tanks/Tank_3/FillReq}, 1, 0) + if({[default]YW_Demo/Tanks/Tank_4/FillReq}, 1, 0) + if({[default]YW_Demo/Tanks/Tank_5/FillReq}, 1, 0) + if({[default]YW_Demo/Tanks/Tank_6/FillReq}, 1, 0) + if({[default]YW_Demo/Tanks/Tank_7/FillReq}, 1, 0) + if({[default]YW_Demo/Tanks/Tank_8/FillReq}, 1, 0)) + ' requesting fill'"
+                      }
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "label-secondary",
+                    "fontSize": "12px",
+                    "marginTop": "8px"
+                  }
+                },
+                "type": "ia.display.label"
+              }
+            ]
           }
         ]
       },
@@ -188,6 +292,106 @@
               "path": "YouthfulWellspring/components/TankCard",
               "params": {
                 "tankPath": "[default]YW_Demo/Tanks/Tank_4"
+              }
+            },
+            "type": "ia.container.view"
+          },
+          {
+            "meta": {
+              "name": "Tank_5"
+            },
+            "position": {
+              "basis": "calc(50% - 8px)"
+            },
+            "propConfig": {
+              "visible": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "{[default]YW_Demo/Tanks/Tank_5/Enabled}"
+                  }
+                }
+              }
+            },
+            "props": {
+              "path": "YouthfulWellspring/components/TankCard",
+              "params": {
+                "tankPath": "[default]YW_Demo/Tanks/Tank_5"
+              }
+            },
+            "type": "ia.container.view"
+          },
+          {
+            "meta": {
+              "name": "Tank_6"
+            },
+            "position": {
+              "basis": "calc(50% - 8px)"
+            },
+            "propConfig": {
+              "visible": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "{[default]YW_Demo/Tanks/Tank_6/Enabled}"
+                  }
+                }
+              }
+            },
+            "props": {
+              "path": "YouthfulWellspring/components/TankCard",
+              "params": {
+                "tankPath": "[default]YW_Demo/Tanks/Tank_6"
+              }
+            },
+            "type": "ia.container.view"
+          },
+          {
+            "meta": {
+              "name": "Tank_7"
+            },
+            "position": {
+              "basis": "calc(50% - 8px)"
+            },
+            "propConfig": {
+              "visible": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "{[default]YW_Demo/Tanks/Tank_7/Enabled}"
+                  }
+                }
+              }
+            },
+            "props": {
+              "path": "YouthfulWellspring/components/TankCard",
+              "params": {
+                "tankPath": "[default]YW_Demo/Tanks/Tank_7"
+              }
+            },
+            "type": "ia.container.view"
+          },
+          {
+            "meta": {
+              "name": "Tank_8"
+            },
+            "position": {
+              "basis": "calc(50% - 8px)"
+            },
+            "propConfig": {
+              "visible": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "{[default]YW_Demo/Tanks/Tank_8/Enabled}"
+                  }
+                }
+              }
+            },
+            "props": {
+              "path": "YouthfulWellspring/components/TankCard",
+              "params": {
+                "tankPath": "[default]YW_Demo/Tanks/Tank_8"
               }
             },
             "type": "ia.container.view"
