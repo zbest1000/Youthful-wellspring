@@ -102,7 +102,7 @@ The UDT structure is designed to mirror Click PLC (AutomationDirect) memory orga
 **Dynamic Configuration:**
 - System supports 1-8 tanks based on `Config/TankCount` setting
 - Tanks 1-4: Enabled by default (standard configuration)
-- Tanks 5-8: Disabled by default (optional expansion tanks)
+- Tanks 5-8: Disabled by default (expansion tanks)
 - PLC should monitor `Enabled` flag (C100, C104, C108, etc.) to determine active tanks
 - Only enabled tanks participate in fill arbitration and control logic
 
@@ -309,10 +309,10 @@ For Tank_1 through Tank_8:
 - X002: Tank 2 Level Sensor (if TankCount ≥ 2)
 - X003: Tank 3 Level Sensor (if TankCount ≥ 3)
 - X004: Tank 4 Level Sensor (if TankCount ≥ 4)
-- X005: Tank 5 Level Sensor (if TankCount ≥ 5, optional)
-- X006: Tank 6 Level Sensor (if TankCount ≥ 6, optional)
-- X007: Tank 7 Level Sensor (if TankCount ≥ 7, optional)
-- X008: Tank 8 Level Sensor (if TankCount = 8, optional)
+- X005: Tank 5 Level Sensor (if TankCount ≥ 5)
+- X006: Tank 6 Level Sensor (if TankCount ≥ 6)
+- X007: Tank 7 Level Sensor (if TankCount ≥ 7)
+- X008: Tank 8 Level Sensor (if TankCount = 8)
 
 **Note:** Only wire and scale analog inputs for the number of tanks actually installed.
 
@@ -330,10 +330,10 @@ For Tank_1 through Tank_8:
 - Y003: Tank 2 Inlet Valve (if TankCount ≥ 2)
 - Y004: Tank 3 Inlet Valve (if TankCount ≥ 3)
 - Y005: Tank 4 Inlet Valve (if TankCount ≥ 4)
-- Y006: Tank 5 Inlet Valve (if TankCount ≥ 5, optional)
-- Y007: Tank 6 Inlet Valve (if TankCount ≥ 6, optional)
-- Y008: Tank 7 Inlet Valve (if TankCount ≥ 7, optional)
-- Y009: Tank 8 Inlet Valve (if TankCount = 8, optional)
+- Y006: Tank 5 Inlet Valve (if TankCount ≥ 5)
+- Y007: Tank 6 Inlet Valve (if TankCount ≥ 6)
+- Y008: Tank 7 Inlet Valve (if TankCount ≥ 7)
+- Y009: Tank 8 Inlet Valve (if TankCount = 8)
 - Y010: Backwash Valve (always used)
 
 **Note:** Only wire outputs for the number of tanks actually installed. Unused outputs can remain unconnected.
