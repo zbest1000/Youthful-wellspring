@@ -98,6 +98,74 @@
             "ManEnable": false,
             "OOS": false
           }
+        },
+        {
+          "name": "Tank_5",
+          "tagType": "UdtInstance",
+          "typeId": "YW_Tank",
+          "parameters": {
+            "Name": "Tank 5",
+            "LevelPct": 70.0,
+            "LevelX10": 700,
+            "LowSP": 40.0,
+            "HighSP": 95.0,
+            "Priority": 5,
+            "Enabled": false,
+            "AutoEnable": true,
+            "ManEnable": false,
+            "OOS": false
+          }
+        },
+        {
+          "name": "Tank_6",
+          "tagType": "UdtInstance",
+          "typeId": "YW_Tank",
+          "parameters": {
+            "Name": "Tank 6",
+            "LevelPct": 60.0,
+            "LevelX10": 600,
+            "LowSP": 40.0,
+            "HighSP": 95.0,
+            "Priority": 6,
+            "Enabled": false,
+            "AutoEnable": true,
+            "ManEnable": false,
+            "OOS": false
+          }
+        },
+        {
+          "name": "Tank_7",
+          "tagType": "UdtInstance",
+          "typeId": "YW_Tank",
+          "parameters": {
+            "Name": "Tank 7",
+            "LevelPct": 50.0,
+            "LevelX10": 500,
+            "LowSP": 40.0,
+            "HighSP": 95.0,
+            "Priority": 7,
+            "Enabled": false,
+            "AutoEnable": true,
+            "ManEnable": false,
+            "OOS": false
+          }
+        },
+        {
+          "name": "Tank_8",
+          "tagType": "UdtInstance",
+          "typeId": "YW_Tank",
+          "parameters": {
+            "Name": "Tank 8",
+            "LevelPct": 40.0,
+            "LevelX10": 400,
+            "LowSP": 40.0,
+            "HighSP": 95.0,
+            "Priority": 8,
+            "Enabled": false,
+            "AutoEnable": true,
+            "ManEnable": false,
+            "OOS": false
+          }
         }
       ]
     }

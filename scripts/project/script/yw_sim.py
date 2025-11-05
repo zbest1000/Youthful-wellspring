@@ -46,7 +46,12 @@ def run_tick(base_path):
 	
 	
 	# === STEP 2: Update Tank Fill Requests (lines 115-124) ===
-	tank_names = ["Tank_1", "Tank_2", "Tank_3", "Tank_4"]
+	# Read configured tank count (1-8)
+	tank_count = system.tag.readBlocking([base_path + "/Config/TankCount"])[0].value
+	tank_count = max(1, min(8, tank_count))  # Clamp to valid range
+	
+	# Generate tank names based on configuration
+	tank_names = ["Tank_" + str(i) for i in range(1, tank_count + 1)]
 	tank_data = []
 	
 	for tank_name in tank_names:
@@ -173,7 +178,12 @@ def get_tank_snapshot(base_path="[default]YW_Demo"):
 	Return a Python list of tank dictionaries for display in Perspective tables/repeaters.
 	Matches React's tank structure.
 	"""
-	tank_names = ["Tank_1", "Tank_2", "Tank_3", "Tank_4"]
+	# Read configured tank count (1-8)
+	tank_count = system.tag.readBlocking([base_path + "/Config/TankCount"])[0].value
+	tank_count = max(1, min(8, tank_count))  # Clamp to valid range
+	
+	# Generate tank names based on configuration
+	tank_names = ["Tank_" + str(i) for i in range(1, tank_count + 1)]
 	
 	tanks = []
 	for tank_name in tank_names:
@@ -257,7 +267,13 @@ def get_diagnostics_data(base_path="[default]YW_Demo"):
 	})
 	
 	# Tank diagnostics
-	tank_names = ["Tank_1", "Tank_2", "Tank_3", "Tank_4"]
+	# Read configured tank count (1-8)
+	tank_count = system.tag.readBlocking([base_path + "/Config/TankCount"])[0].value
+	tank_count = max(1, min(8, tank_count))  # Clamp to valid range
+	
+	# Generate tank names based on configuration
+	tank_names = ["Tank_" + str(i) for i in range(1, tank_count + 1)]
+	
 	for tank_name in tank_names:
 		tank_path = base_path + "/Tanks/" + tank_name
 		name = system.tag.readBlocking([tank_path + "/Name"])[0].value
