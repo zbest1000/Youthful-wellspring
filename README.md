@@ -8,15 +8,16 @@ A complete Ignition 8.3 Perspective SCADA project for water tank management, con
 
 ## 🌊 Overview
 
-**Youthful Wellspring** is a water distribution control system featuring:
+**Youthful Wellspring** is a production-ready water distribution control system featuring:
 
 - **4 Water Storage Tanks** with individual level monitoring and control
 - **Priority-based valve arbitration** for automated filling
-- **Pump control** with Auto/Manual modes
+- **Pump control** with Auto/Manual modes and Anti-Short-Cycle protection
 - **Backwash sequence automation** with multi-step workflow
-- **Real-time alarming and trending**
+- **Real-time alarming and trending** with tag history integration
 - **Comprehensive diagnostics** and configuration screens
-- **Simulation mode** for training and testing (no PLC required)
+- **OPC UA/PLC connectivity** for live process data
+- **Optional simulation mode** for training, testing, and demonstrations (no PLC required)
 
 ---
 
@@ -149,16 +150,26 @@ A complete Ignition 8.3 Perspective SCADA project for water tank management, con
 - Ignition 8.3+ Gateway
 - Perspective Module license
 - Designer Launcher installed
+- **Production:** PLC/SCADA system with OPC UA connectivity
+- **Demo/Training:** No hardware required (simulation mode)
 
 ### Import Steps (Summary)
 
 1. **Import UDTs:** `tags/YouthfulWellspringUDTs.json` → Tag Browser
 2. **Import Tag Instances:** `tags/YouthfulWellspringSimInstances.json` → `[default]` provider
-3. **Import Simulation Script:** `scripts/project/script/yw_sim.py` → Project Library
+3. **Import Simulation Script:** `scripts/project/script/yw_sim.py` → Project Library (optional)
 4. **Import Style Classes:** `perspective/style/style.json` → Perspective Styles
 5. **Import Views:** All JSON files from `perspective/views/` → Perspective Views
-6. **Configure Timer Script:** Gateway timer to call `project.script.yw_sim.run_tick("[default]YW_Demo")` every 2s
-7. **Create Session:** Set primary view to `YouthfulWellspring/main/Shell`
+6. **Create Session:** Set primary view to `YouthfulWellspring/main/Shell`
+
+**For Production Use:**
+7. **Map OPC Tags:** Follow [docs/PLC_MAPPING.md](docs/PLC_MAPPING.md) to connect to your PLC
+8. **Configure Alarms:** Set up alarm pipelines for tank levels and faults
+9. **Enable Tag History:** Configure historian for trending
+
+**For Demo/Training Mode:**
+7. **Configure Timer Script:** Gateway timer calling `project.script.yw_sim.run_tick()` every 2s
+8. **Enable Simulation:** Set `System/SimulationActive` = True
 
 **📖 Full instructions:** See [docs/IMPORT.md](docs/IMPORT.md)
 
@@ -209,21 +220,34 @@ YW_System (UDT)
 └── LastUpdate (DateTime)
 ```
 
-### Simulation Logic
+### Production Operation
+
+The UDT tags are designed to connect directly to your PLC/SCADA system via OPC UA:
+
+- **Tag Provider:** Configure OPC UA connection to your PLC
+- **Tag Mapping:** Map UDT tags to PLC memory addresses (see mapping guide below)
+- **Real-time Updates:** All views bind to tags for live data updates
+- **PLC Logic:** Your PLC handles valve arbitration, pump control, and backwash sequences
+
+### Optional Simulation Mode
+
+For training, testing, or demo purposes without a PLC:
 
 The `yw_sim.py` script module replicates PLC logic:
+- **Tank Level Updates:** Simulates filling/draining based on valve states
+- **Valve Arbitration:** Priority-based selection logic
+- **Pump Control:** Auto/Manual mode logic with ASC timers
+- **Backwash Sequence:** Timer-based state machine
 
-- **Tank Level Updates:** Fills when pump runs + inlet valve open, drains when outlet open
-- **Valve Arbitration:** Priority-based selection of which tank gets inlet flow
-- **Pump Control:** Auto mode uses demand detection; Manual mode uses operator commands
-- **Backwash Sequence:** Step-based state machine with progress tracking
-- **Diagnostics:** Snapshot functions for Perspective table bindings
+**To Enable Simulation:**
+1. Set `[default]YW_Demo/System/SimulationActive` = `True`
+2. Create gateway timer script calling `project.script.yw_sim.run_tick("[default]YW_Demo")` every 2 seconds
+3. Disable timer when connecting to real PLC
 
-**Gateway Timer Script:**
-```python
-project.script.yw_sim.run_tick("[default]YW_Demo")
-```
-**Interval:** 2000ms (2 seconds)
+**To Disable Simulation (Production Mode):**
+1. Set `[default]YW_Demo/System/SimulationActive` = `False`
+2. Disable or delete the gateway timer script
+3. Configure OPC connections to your PLC
 
 ### View Patterns
 
@@ -244,23 +268,71 @@ project.script.yw_sim.run_tick("[default]YW_Demo")
 
 ## 🔧 Configuration
 
-### Connecting to a Real PLC
+### Connecting to Your PLC (Production Mode)
 
-1. **Map tags to OPC tags:**
-   - Replace `[default]YW_Demo` memory tags with OPC UA tags from your PLC
-   - Update all view bindings to reference new tag paths
+#### Step 1: Configure OPC UA Connection
 
-2. **Disable simulation:**
-   - Set `[default]YW_Demo/System/SimulationActive` to `False`, or
-   - Disable the gateway timer script
+1. In Gateway Config, add OPC UA connection to your PLC
+2. Browse available tags and verify connectivity
+3. Note the PLC memory addresses for each UDT parameter
 
-3. **Configure alarms:**
-   - Add alarm configurations to tank `Level` tags (Low-Low, High-High)
-   - Assign to alarm pipelines
+#### Step 2: Map UDT Tags to PLC Addresses
 
-4. **Enable tag history:**
-   - Configure historian on tank `Level` tags
-   - Set sample mode (On Change or Periodic)
+Replace the memory tags in `[default]YW_Demo` with OPC tag paths:
+
+**Example Mapping (adjust to your PLC):**
+
+| UDT Tag Path | PLC Address Example | Notes |
+|-------------|---------------------|-------|
+| `Tanks/Tank_1/LevelPct` | `ns=1;s=[PLC]DF1` | Tank 1 level (DF1-DF8) |
+| `Tanks/Tank_1/LowSP` | `ns=1;s=[PLC]DS1200` | Tank 1 low setpoint |
+| `Tanks/Tank_1/HighSP` | `ns=1;s=[PLC]DS1201` | Tank 1 high setpoint |
+| `Tanks/Tank_1/Priority` | `ns=1;s=[PLC]DS1202` | Tank 1 priority |
+| `Tanks/Tank_1/Enabled` | `ns=1;s=[PLC]C100` | Tank 1 enable coil |
+| `Tanks/Tank_1/ValveOutput` | `ns=1;s=[PLC]Y002` | Tank 1 valve output |
+| `Pump/PumpRunning` | `ns=1;s=[PLC]Y001` | Pump output (Y001) |
+| `Pump/PumpRequest` | `ns=1;s=[PLC]C060` | Pump request coil |
+| `Mode/AutoSelected` | `ns=1;s=[PLC]X021` | Auto mode selector |
+| `Mode/EStop` | `ns=1;s=[PLC]X001` | E-Stop input |
+| `Backwash/Active` | `ns=1;s=[PLC]C31` | Backwash active |
+| `Backwash/Valve` | `ns=1;s=[PLC]Y010` | Backwash valve output |
+
+**Methods to Map Tags:**
+- **Option A (Recommended)**: In Tag Browser, edit each UDT instance tag and change `valueSource` from `memory` to `opc` and set OPC path
+- **Option B**: Create new UDT instances pointing to OPC tags
+- **Option C**: Use tag import/export with find-replace to bulk update paths
+
+#### Step 3: Disable Simulation Mode
+
+1. Set `[default]YW_Demo/System/SimulationActive` = `False`
+2. In Gateway Config → Scripting → Timer Scripts, **disable or delete** the `YW Simulation Tick` timer
+3. Verify views update with live PLC data
+
+#### Step 4: Configure Alarms
+
+Add alarm configurations to tank `LevelPct` tags:
+- **Low-Low Alarm**: `LevelPct` < 10% (Critical)
+- **Low Alarm**: `LevelPct` < 20% (High)
+- **High Alarm**: `LevelPct` > 90% (Medium)
+- **High-High Alarm**: `LevelPct` > 95% (Critical)
+
+Assign to alarm pipelines for notification/logging.
+
+#### Step 5: Enable Tag History
+
+Configure historian on these tags for trending:
+```
+[default]YW_Demo/Tanks/Tank_1/LevelPct
+[default]YW_Demo/Tanks/Tank_2/LevelPct
+[default]YW_Demo/Tanks/Tank_3/LevelPct
+[default]YW_Demo/Tanks/Tank_4/LevelPct
+[default]YW_Demo/Pump/PumpRunning
+[default]YW_Demo/Backwash/Active
+```
+
+**Recommended settings:**
+- Sample Mode: `On Change` with 0.5% deadband
+- Storage Provider: Default historian or SQL Bridge
 
 ### User Roles & Security
 
@@ -358,10 +430,17 @@ Before connecting to a live PLC:
 
 ## 📝 Documentation
 
-- **[IMPORT.md](docs/IMPORT.md)** - Complete import instructions with troubleshooting
+### Production Use
+- **[PLC_MAPPING.md](docs/PLC_MAPPING.md)** - 🏭 **Production PLC tag mapping guide** (Click PLC, Allen-Bradley, Siemens, Modbus)
+- **[IMPORT.md](docs/IMPORT.md)** - Complete import instructions with production setup steps
+
+### Reference
+- **[REACT_ALIGNMENT.md](docs/REACT_ALIGNMENT.md)** - Verification of alignment with React source code
 - **[CONTAINER_LAYOUT.md](docs/CONTAINER_LAYOUT.md)** - Detailed view structure and layout patterns
 - **Style Classes** - See `perspective/style/style.json` for all available classes
-- **Simulation Logic** - See inline comments in `scripts/project/script/yw_sim.py`
+
+### Demo/Training Mode
+- **Simulation Logic** - See inline comments in `scripts/project/script/yw_sim.py` (optional demo mode)
 
 ---
 
