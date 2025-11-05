@@ -24,8 +24,7 @@
             "borderBottom": "2px solid #2563eb"
           }
         },
-        "type": "ia.container.flex"
-        },
+        "type": "ia.container.flex",
         "children": [
           {
             "meta": {

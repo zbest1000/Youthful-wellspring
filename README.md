@@ -453,6 +453,7 @@ Before connecting to a live PLC:
 - **[IMPORT.md](docs/IMPORT.md)** - Complete import instructions with Modbus device setup
 
 ### Reference
+- **[IGNITION_COMPATIBILITY.md](docs/IGNITION_COMPATIBILITY.md)** - ✅ **Ignition 8.3 compatibility verification & troubleshooting**
 - **[REACT_ALIGNMENT.md](docs/REACT_ALIGNMENT.md)** - Verification of alignment with React source code
 - **[CONTAINER_LAYOUT.md](docs/CONTAINER_LAYOUT.md)** - Detailed view structure and layout patterns
 - **Style Classes** - See `perspective/style/style.json` for all available classes
